@@ -44,3 +44,51 @@ export const loginController = async (req, res) => {
       .json({ success: false, message: "Internal server error" });
   }
 };
+
+export const registerController = async (req, res) => {
+  try {
+    const { name, username, email, password } = req.body;
+    if (!name || !username || !email || !password) {
+      return res.status(400).json({
+        success: false,
+        message: "All fields are required",
+      });
+    }
+    const existingUser = await User.findOne({
+      $or: [
+        { email: email.toLowerCase() },
+        { username: username.toLowerCase() },
+      ],
+    });
+    if (existingUser) {
+      return res.status(400).json({
+        success: false,
+        message: "Email or username already exists",
+      });
+    }
+    const user = await User.create({
+      name,
+      username: username.toLowerCase(),
+      email: email.toLowerCase(),
+      password,
+    });
+    if (!process.env.JWT_SECRET) {
+      throw new Error("JWT_SECRET is missing");
+    }
+    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
+      expiresIn: "30d",
+    });
+    user.password = undefined;
+    return res.status(201).json({
+      success: true,
+      token,
+      user,
+    });
+  } catch (error) {
+    console.error(`Server error in registerController: ${error.message}`);
+    return res.status(500).json({
+      success: false,
+      message: "Internal server error",
+    });
+  }
+};
