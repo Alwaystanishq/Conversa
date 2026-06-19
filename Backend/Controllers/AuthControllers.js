@@ -6,12 +6,12 @@ export const loginController = async (req, res) => {
   try {
     const { email, password } = req.body;
     if (!email || !password) {
-      return res.status(401).json({
+      return res.status(400).json({
         success: false,
         message: "All fields are required",
       });
     }
-    const loginUser = await User.findOne({ email: email });
+    const loginUser = await User.findOne({ email: email.toLowerCase() });
     if (!loginUser) {
       return res.status(400).json({
         success: false,
@@ -24,7 +24,23 @@ export const loginController = async (req, res) => {
         success: false,
         message: "Invalid credentials",
       });
-      
     }
-  } catch (error) {}
+    if (!process.env.JWT_SECRET) {
+      throw new Error("JWT_SECRET is missing");
+    }
+    const token = jwt.sign({ id: loginUser._id }, process.env.JWT_SECRET, {
+      expiresIn: "30d",
+    });
+    loginUser.password = undefined;
+    return res.status(200).json({
+      success: true,
+      token,
+      user: loginUser,
+    });
+  } catch (error) {
+    console.error(`server error in loginController ${error.message}`);
+    return res
+      .status(500)
+      .json({ success: false, message: "Internal server error" });
+  }
 };
