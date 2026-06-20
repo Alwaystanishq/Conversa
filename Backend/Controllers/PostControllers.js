@@ -49,3 +49,33 @@ const getFeedController = async (req, res) => {
     });
   }
 };
+
+const likePostController = async (req, res) => {
+  try {
+    const post = await Post.findByIdAndUpdate(
+      req.params.id,
+      {
+        $addToSet: {
+          likes: req.user._id,
+        },
+      },
+      { new: true },
+    );
+    if (!post) {
+      return res.status(404).json({
+        success: false,
+        message: "Post not found",
+      });
+    }
+    return res.status(200).json({
+      success: true,
+      message: "Post liked",
+    });
+  } catch (error) {
+    console.error(`Server error in likePostController: ${error.message}`);
+    return res.status(500).json({
+      success: false,
+      message: "Internal server error",
+    });
+  }
+};
