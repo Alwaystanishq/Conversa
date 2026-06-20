@@ -72,3 +72,43 @@ export const followUserController = async (req, res) => {
     });
   }
 };
+
+export const unfollowUserController = async (req, res) => {
+  try {
+    const currentUserId = req.user._id;
+    const targetUserId = req.params.userId;
+    if (currentUserId.toString() === targetUserId) {
+      return res.status(400).json({
+        success: false,
+        message: "You cannot unfollow yourself",
+      });
+    }
+    const targetUser = await User.findById(targetUserId);
+    if (!targetUser) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found",
+      });
+    }
+    await User.findByIdAndUpdate(targetUserId, {
+      $pull: {
+        followers: currentUserId,
+      },
+    });
+    await User.findByIdAndUpdate(currentUserId, {
+      $pull: {
+        following: targetUserId,
+      },
+    });
+    return res.status(200).json({
+      success: true,
+      message: "User unfollowed successfully",
+    });
+  } catch (error) {
+    console.error(`Unfollow error: ${error.message}`);
+    return res.status(500).json({
+      success: false,
+      message: "Internal server error",
+    });
+  }
+};
