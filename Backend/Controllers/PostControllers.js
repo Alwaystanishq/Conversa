@@ -1,6 +1,6 @@
 import Post from "../Models/Postmodel";
 
-const CreatePostController = async (req, res) => {
+const createPostController = async (req, res) => {
   try {
     const { content } = req.body;
     if (!content || !content.trim()) {
@@ -20,6 +20,29 @@ const CreatePostController = async (req, res) => {
     });
   } catch (error) {
     console.error(`Server error in createPostController: ${error.message}`);
+    return res.status(500).json({
+      success: false,
+      message: "Internal server error",
+    });
+  }
+};
+
+const getFeedController = async (req, res) => {
+  try {
+    const userIds = [req.user._id, ...req.user.following];
+
+    const posts = await Post.find({
+      author: { $in: userIds },
+    })
+      .populate("author", "name username bio")
+      .sort({ createdAt: -1 });
+
+    return res.status(200).json({
+      success: true,
+      posts,
+    });
+  } catch (error) {
+    console.error(`Server error in getFeedController: ${error.message}`);
     return res.status(500).json({
       success: false,
       message: "Internal server error",
