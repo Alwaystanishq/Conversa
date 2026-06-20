@@ -79,3 +79,36 @@ const likePostController = async (req, res) => {
     });
   }
 };
+
+export const unlikePostController = async (req, res) => {
+  try {
+    const post = await Post.findByIdAndUpdate(
+      req.params.id,
+      {
+        $pull: {
+          likes: req.user._id,
+        },
+      },
+      { new: true },
+    );
+
+    if (!post) {
+      return res.status(404).json({
+        success: false,
+        message: "Post not found",
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: "Post unliked",
+    });
+  } catch (error) {
+    console.error(`Server error in unlikePostController: ${error.message}`);
+
+    return res.status(500).json({
+      success: false,
+      message: "Internal server error",
+    });
+  }
+};
