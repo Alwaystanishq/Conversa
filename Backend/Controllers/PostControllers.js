@@ -1,6 +1,6 @@
 import Post from "../Models/Postmodel";
 
-const createPostController = async (req, res) => {
+export const createPostController = async (req, res) => {
   try {
     const { content } = req.body;
     if (!content || !content.trim()) {
@@ -27,7 +27,7 @@ const createPostController = async (req, res) => {
   }
 };
 
-const getFeedController = async (req, res) => {
+export const getFeedController = async (req, res) => {
   try {
     const userIds = [req.user._id, ...req.user.following];
 
@@ -50,7 +50,7 @@ const getFeedController = async (req, res) => {
   }
 };
 
-const likePostController = async (req, res) => {
+export const likePostController = async (req, res) => {
   try {
     const post = await Post.findByIdAndUpdate(
       req.params.id,

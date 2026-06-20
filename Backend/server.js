@@ -3,7 +3,9 @@ import dotenv from "dotenv";
 import cookieParser from "cookie-parser";
 import cors from "cors";
 import { connectDB } from "./Config/DB";
-import Authrouter from "./Routes/AuthRoutes";
+import AuthRouter from "./Routes/AuthRoutes";
+import { authToken } from "./Middlewares/AuthMiddleware";
+import PostRouter from "./Routes/PostRoutes";
 
 const app = express();
 dotenv.config();
@@ -16,7 +18,8 @@ app.use(
 );
 app.use(express.json());
 
-app.use("/api/auth",Authrouter)
+app.use("/api/auth",AuthRouter)
+app.use("/api/posts", authToken, PostRouter)
 
 const PORT = process.env.PORT || 5000;
 
