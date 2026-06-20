@@ -6,6 +6,7 @@ import { connectDB } from "./Config/DB";
 import AuthRouter from "./Routes/AuthRoutes";
 import { authToken } from "./Middlewares/AuthMiddleware";
 import PostRouter from "./Routes/PostRoutes";
+import UserRouter from "./Routes/UserRoutes";
 
 const app = express();
 dotenv.config();
@@ -18,8 +19,9 @@ app.use(
 );
 app.use(express.json());
 
-app.use("/api/auth",AuthRouter)
-app.use("/api/posts", authToken, PostRouter)
+app.use("/api/auth", AuthRouter);
+app.use("/api/posts", authToken, PostRouter);
+app.use("/api/users", authToken, UserRouter);
 
 const PORT = process.env.PORT || 5000;
 
