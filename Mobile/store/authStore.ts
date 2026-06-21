@@ -1,27 +1,16 @@
 import { create } from "zustand";
-import { User } from "../types/user";
 import { storage } from "../utils/storage";
 
-type AuthState = {
-  user: User | null;
-  isLoading: boolean;
-
-  setAuth: (token: string, user: User) => Promise<void>;
-  setUser: (user: User | null) => void;
-  logout: () => Promise<void>;
-  setLoading: (isLoading: boolean) => void;
-};
-
-const useAuthStore = create<AuthState>((set) => ({
+const useAuthStore = create((set) => ({
   user: null,
   isLoading: true,
 
-  setAuth: async (token, user) => {
+  setAuth: async (token: string, user: any) => {
     await storage.setToken(token);
     set({ user, isLoading: false });
   },
 
-  setUser: (user) => {
+  setUser: (user: any) => {
     set({ user, isLoading: false });
   },
 
@@ -30,7 +19,7 @@ const useAuthStore = create<AuthState>((set) => ({
     set({ user: null, isLoading: false });
   },
 
-  setLoading: (isLoading) => {
+  setLoading: (isLoading: boolean) => {
     set({ isLoading });
   },
 }));
