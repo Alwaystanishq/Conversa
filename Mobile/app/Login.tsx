@@ -91,7 +91,7 @@ export default function Login() {
           <View style={styles.bottomRow}>
             <Text style={styles.bottomText}>New to Conversa? </Text>
 
-            <Pressable onPress={() => router.push("/register")}>
+            <Pressable onPress={() => router.push("/Register")}>
               <Text style={styles.bottomLink}>Create an account</Text>
             </Pressable>
           </View>
