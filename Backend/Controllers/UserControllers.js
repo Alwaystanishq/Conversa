@@ -112,3 +112,48 @@ export const unfollowUserController = async (req, res) => {
     });
   }
 };
+
+export const searchUsersController = async (req, res) => {
+  try {
+    const query = req.query.query?.trim();
+
+    // If search input is empty, return no users.
+    if (!query) {
+      return res.status(200).json({
+        success: true,
+        users: [],
+      });
+    }
+
+    const users = await User.find({
+      $or: [
+        {
+          name: {
+            $regex: query,
+            $options: "i",
+          },
+        },
+        {
+          username: {
+            $regex: query,
+            $options: "i",
+          },
+        },
+      ],
+    })
+      .select("name username bio followers")
+      .limit(20);
+
+    return res.status(200).json({
+      success: true,
+      users,
+    });
+  } catch (error) {
+    console.error(`Server error in searchUsersController: ${error.message}`);
+
+    return res.status(500).json({
+      success: false,
+      message: "Internal server error",
+    });
+  }
+};
