@@ -1,5 +1,7 @@
 import { useState } from "react";
 import {
+  ActivityIndicator,
+  Alert,
   KeyboardAvoidingView,
   Platform,
   Pressable,
@@ -11,6 +13,8 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import { router } from "expo-router";
 import { colors, radius, spacing } from "../constants/theme";
+import api from "../api/client";
+import useAuthStore from "../store/authStore";
 
 export default function Register() {
   const [name, setName] = useState("");
@@ -18,6 +22,38 @@ export default function Register() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+
+  const setAuth = useAuthStore((state) => state.setAuth);
+
+  const handleRegister = async () => {
+    if (!name.trim() || !username.trim() || !email.trim() || !password.trim()) {
+      Alert.alert("Missing fields", "Fill in all fields.");
+      return;
+    }
+
+    try {
+      setIsLoading(true);
+
+      const response = await api.post("/auth/register", {
+        name: name.trim(),
+        username: username.trim().toLowerCase(),
+        email: email.trim().toLowerCase(),
+        password,
+      });
+
+      await setAuth(response.data.token, response.data.user);
+
+      router.replace("/Home");
+    } catch (error: any) {
+      Alert.alert(
+        "Registration failed",
+        error.response?.data?.message || "Please try again.",
+      );
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   return (
     <SafeAreaView style={styles.safeArea}>
@@ -50,6 +86,7 @@ export default function Register() {
                 value={name}
                 onChangeText={setName}
                 autoCapitalize="words"
+                editable={!isLoading}
               />
 
               <Text style={[styles.label, styles.nextLabel]}>Username</Text>
@@ -61,6 +98,7 @@ export default function Register() {
                 onChangeText={setUsername}
                 autoCapitalize="none"
                 autoCorrect={false}
+                editable={!isLoading}
               />
 
               <Text style={[styles.label, styles.nextLabel]}>
@@ -75,9 +113,11 @@ export default function Register() {
                 keyboardType="email-address"
                 autoCapitalize="none"
                 autoCorrect={false}
+                editable={!isLoading}
               />
 
               <Text style={[styles.label, styles.nextLabel]}>Password</Text>
+
               <View style={styles.passwordBox}>
                 <TextInput
                   style={styles.passwordInput}
@@ -87,11 +127,13 @@ export default function Register() {
                   onChangeText={setPassword}
                   secureTextEntry={!showPassword}
                   autoCapitalize="none"
+                  editable={!isLoading}
                 />
 
                 <Pressable
                   style={styles.showButton}
                   onPress={() => setShowPassword((value) => !value)}
+                  disabled={isLoading}
                 >
                   <Text style={styles.showText}>
                     {showPassword ? "Hide" : "Show"}
@@ -99,8 +141,30 @@ export default function Register() {
                 </Pressable>
               </View>
 
-              <Pressable style={styles.primaryButton}>
-                <Text style={styles.primaryButtonText}>Create account</Text>
+              <Pressable
+                style={[
+                  styles.primaryButton,
+                  (isLoading ||
+                    !name.trim() ||
+                    !username.trim() ||
+                    !email.trim() ||
+                    !password.trim()) &&
+                    styles.buttonDisabled,
+                ]}
+                onPress={handleRegister}
+                disabled={
+                  isLoading ||
+                  !name.trim() ||
+                  !username.trim() ||
+                  !email.trim() ||
+                  !password.trim()
+                }
+              >
+                {isLoading ? (
+                  <ActivityIndicator color={colors.primaryText} />
+                ) : (
+                  <Text style={styles.primaryButtonText}>Create account</Text>
+                )}
               </Pressable>
             </View>
           </View>
@@ -108,7 +172,7 @@ export default function Register() {
           <View style={styles.bottomRow}>
             <Text style={styles.bottomText}>Already have an account? </Text>
 
-            <Pressable onPress={() => router.back()}>
+            <Pressable onPress={() => router.back()} disabled={isLoading}>
               <Text style={styles.bottomLink}>Log in</Text>
             </Pressable>
           </View>
@@ -236,6 +300,10 @@ const styles = StyleSheet.create({
     borderRadius: radius.lg,
     backgroundColor: colors.primary,
     paddingVertical: 15,
+  },
+
+  buttonDisabled: {
+    opacity: 0.5,
   },
 
   primaryButtonText: {
