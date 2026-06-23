@@ -1,5 +1,7 @@
 import { useState } from "react";
 import {
+  ActivityIndicator,
+  Alert,
   KeyboardAvoidingView,
   Platform,
   Pressable,
@@ -11,11 +13,43 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import { router } from "expo-router";
 import { colors, radius, spacing } from "../constants/theme";
+import api from "../api/client";
+import useAuthStore from "../store/authStore";
 
 export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+
+  const setAuth = useAuthStore((state) => state.setAuth);
+
+  const handleLogin = async () => {
+    if (!email.trim() || !password.trim()) {
+      Alert.alert("Missing fields", "Enter your email and password.");
+      return;
+    }
+
+    try {
+      setIsLoading(true);
+
+      const response = await api.post("/auth/login", {
+        email: email.trim().toLowerCase(),
+        password,
+      });
+
+      await setAuth(response.data.token, response.data.user);
+
+      router.replace("/Home");
+    } catch (error: any) {
+      Alert.alert(
+        "Login failed",
+        error.response?.data?.message || "Please try again.",
+      );
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   return (
     <SafeAreaView style={styles.safeArea}>
@@ -51,12 +85,13 @@ export default function Login() {
                 keyboardType="email-address"
                 autoCapitalize="none"
                 autoCorrect={false}
+                editable={!isLoading}
               />
 
               <View style={styles.passwordLabelRow}>
                 <Text style={styles.label}>Password</Text>
 
-                <Pressable>
+                <Pressable disabled={isLoading}>
                   <Text style={styles.forgotText}>Forgot password?</Text>
                 </Pressable>
               </View>
@@ -70,11 +105,13 @@ export default function Login() {
                   onChangeText={setPassword}
                   secureTextEntry={!showPassword}
                   autoCapitalize="none"
+                  editable={!isLoading}
                 />
 
                 <Pressable
                   style={styles.showButton}
                   onPress={() => setShowPassword((value) => !value)}
+                  disabled={isLoading}
                 >
                   <Text style={styles.showText}>
                     {showPassword ? "Hide" : "Show"}
@@ -82,8 +119,20 @@ export default function Login() {
                 </Pressable>
               </View>
 
-              <Pressable style={styles.primaryButton}>
-                <Text style={styles.primaryButtonText}>Log in</Text>
+              <Pressable
+                style={[
+                  styles.primaryButton,
+                  (isLoading || !email.trim() || !password.trim()) &&
+                    styles.buttonDisabled,
+                ]}
+                onPress={handleLogin}
+                disabled={isLoading || !email.trim() || !password.trim()}
+              >
+                {isLoading ? (
+                  <ActivityIndicator color={colors.primaryText} />
+                ) : (
+                  <Text style={styles.primaryButtonText}>Log in</Text>
+                )}
               </Pressable>
             </View>
           </View>
@@ -91,7 +140,10 @@ export default function Login() {
           <View style={styles.bottomRow}>
             <Text style={styles.bottomText}>New to Conversa? </Text>
 
-            <Pressable onPress={() => router.push("/Register")}>
+            <Pressable
+              onPress={() => router.push("/Register")}
+              disabled={isLoading}
+            >
               <Text style={styles.bottomLink}>Create an account</Text>
             </Pressable>
           </View>
@@ -228,6 +280,10 @@ const styles = StyleSheet.create({
     borderRadius: radius.lg,
     backgroundColor: colors.primary,
     paddingVertical: spacing.lg,
+  },
+
+  buttonDisabled: {
+    opacity: 0.5,
   },
 
   primaryButtonText: {
