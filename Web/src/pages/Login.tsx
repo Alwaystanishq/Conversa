@@ -1,0 +1,110 @@
+import { Link, useNavigate } from "react-router-dom";
+import { useState } from "react";
+import api from "../api/client";
+import useAuthStore from "../store/authStore";
+
+export default function Login() {
+  const navigate = useNavigate();
+  const setAuth = useAuthStore((state) => state.setAuth);
+
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (!email || !password) {
+      return alert("Please fill all fields.");
+    }
+
+    try {
+      setIsLoading(true);
+
+      const response = await api.post("/auth/login", {
+        email,
+        password,
+      });
+
+      setAuth(response.data.token, response.data.user);
+
+      navigate("/home");
+    } catch (error: any) {
+      alert(error.response?.data?.message || "Login failed.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  return (
+    <div className="flex min-h-screen items-center justify-center bg-zinc-950 px-4">
+      <div className="w-full max-w-md rounded-2xl border border-zinc-800 bg-zinc-900 p-8">
+        <div className="mb-10 flex items-center gap-3">
+          <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-violet-600 text-xl font-bold text-white">
+            C
+          </div>
+
+          <h1 className="text-2xl font-bold text-white">Conversa</h1>
+        </div>
+
+        <h2 className="text-4xl font-bold text-white">Welcome back</h2>
+
+        <p className="mt-2 text-zinc-400">
+          Log in to continue the conversation.
+        </p>
+
+        <form onSubmit={handleLogin} className="mt-8 space-y-5">
+          <div>
+            <label className="mb-2 block text-sm text-zinc-300">Email</label>
+
+            <input
+              type="email"
+              className="w-full rounded-xl border border-zinc-700 bg-zinc-800 px-4 py-3 text-white outline-none focus:border-violet-500"
+              placeholder="you@example.com"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+            />
+          </div>
+
+          <div>
+            <label className="mb-2 block text-sm text-zinc-300">Password</label>
+
+            <div className="flex rounded-xl border border-zinc-700 bg-zinc-800">
+              <input
+                type={showPassword ? "text" : "password"}
+                className="flex-1 bg-transparent px-4 py-3 text-white outline-none"
+                placeholder="Enter password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+              />
+
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="px-4 text-sm text-zinc-400"
+              >
+                {showPassword ? "Hide" : "Show"}
+              </button>
+            </div>
+          </div>
+
+          <button
+            type="submit"
+            disabled={isLoading}
+            className="w-full rounded-xl bg-violet-600 py-3 font-semibold text-white transition hover:bg-violet-700 disabled:opacity-50"
+          >
+            {isLoading ? "Logging in..." : "Log In"}
+          </button>
+        </form>
+
+        <p className="mt-8 text-center text-sm text-zinc-400">
+          New to Conversa?{" "}
+          <Link to="/register" className="font-semibold text-white">
+            Create an account
+          </Link>
+        </p>
+      </div>
+    </div>
+  );
+}
