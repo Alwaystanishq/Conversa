@@ -6,9 +6,18 @@ type Props = {
 };
 
 export default function ProtectedRoute({ children }: Props) {
-  const token = useAuthStore((state) => state.token);
+  const user = useAuthStore((state) => state.user);
+  const isLoading = useAuthStore((state) => state.isLoading);
 
-  if (!token) {
+  if (isLoading) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-zinc-950 text-white">
+        Loading...
+      </div>
+    );
+  }
+
+  if (!user) {
     return <Navigate to="/" replace />;
   }
 
