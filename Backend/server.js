@@ -1,13 +1,12 @@
 import express from "express";
 import dotenv from "dotenv";
-import cookieParser from "cookie-parser";
 import cors from "cors";
 import rateLimit from "express-rate-limit";
-import { connectDB } from "./Config/DB";
-import AuthRouter from "./Routes/AuthRoutes";
-import { authToken } from "./Middlewares/AuthMiddleware";
-import PostRouter from "./Routes/PostRoutes";
-import UserRouter from "./Routes/UserRoutes";
+import { connectDB } from "./Config/DB.js";
+import AuthRouter from "./Routes/AuthRoutes.js";
+import { authToken } from "./Middlewares/AuthMiddleware.js";
+import PostRouter from "./Routes/PostRoutes.js";
+import UserRouter from "./Routes/UserRoutes.js";
 
 dotenv.config();
 
@@ -23,7 +22,6 @@ app.use(
 );
 
 app.use(express.json());
-app.use(cookieParser());
 
 const authLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
@@ -36,7 +34,7 @@ const authLimiter = rateLimit({
   legacyHeaders: false,
 });
 
-app.use("/api/auth", authLimiter, AuthRouter);
+app.use("/api/auth", AuthRouter(authLimiter));
 
 app.use("/api/posts", authToken, PostRouter);
 app.use("/api/users", authToken, UserRouter);

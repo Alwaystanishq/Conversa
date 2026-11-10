@@ -18,7 +18,7 @@ export default function Home() {
 
   const getFeed = async () => {
     try {
-      const response = await api.get("/post/feed");
+      const response = await api.get("/posts/feed");
       setPosts(response.data.posts);
     } catch (error: any) {
       console.log(

@@ -1,4 +1,5 @@
 import { useEffect } from "react";
+import { isAxiosError } from "axios";
 import { ActivityIndicator, StyleSheet, View } from "react-native";
 import { Stack, useRouter, useSegments } from "expo-router";
 import { StatusBar } from "expo-status-bar";
@@ -22,8 +23,8 @@ function AuthGuard() {
         const response = await api.get("/auth/me");
 
         setUser(response.data.user);
-      } catch {
-        await logout();
+      } catch (error) {
+        if (isAxiosError(error) && error.response?.status === 401) await logout();
       } finally {
         setLoading(false);
       }

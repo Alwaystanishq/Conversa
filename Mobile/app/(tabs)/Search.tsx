@@ -43,7 +43,7 @@ export default function Search() {
     try {
       setIsLoading(true);
 
-      const response = await api.get("/user/search", {
+      const response = await api.get("/users/search", {
         params: {
           query: trimmedQuery,
         },
@@ -62,9 +62,11 @@ export default function Search() {
 
   const handleFollow = async (userId: string) => {
     try {
-      await api.put(`/user/${userId}/follow`);
+      await api.put(`/users/${userId}/follow`);
 
       setFollowingIds((currentIds) => [...currentIds, userId]);
+      const user = useAuthStore.getState().user;
+      if (user) useAuthStore.getState().setUser({ ...user, following: [...new Set([...user.following, userId])] });
     } catch (error: any) {
       Alert.alert(
         "Could not follow user",
@@ -75,9 +77,11 @@ export default function Search() {
 
   const handleUnfollow = async (userId: string) => {
     try {
-      await api.put(`/user/${userId}/unfollow`);
+      await api.put(`/users/${userId}/unfollow`);
 
       setFollowingIds((currentIds) => currentIds.filter((id) => id !== userId));
+      const user = useAuthStore.getState().user;
+      if (user) useAuthStore.getState().setUser({ ...user, following: user.following.filter(id => id !== userId) });
     } catch (error: any) {
       Alert.alert(
         "Could not unfollow user",

@@ -30,8 +30,8 @@ export default function Profile() {
     }
 
     try {
-      const response = await api.get(`/user/${currentUser.username}`);
-      setProfile(response.data.user);
+      const response = await api.get(`/users/${currentUser.username}`);
+      setProfile({ ...response.data.user, posts: response.data.userPosts, likedPosts: response.data.likedPosts });
     } catch (error: any) {
       console.log(
         "Profile error:",

@@ -48,6 +48,14 @@ export default function App() {
           </ProtectedRoute>
         }
       />
+      <Route
+        path="/profile/:username"
+        element={
+          <ProtectedRoute>
+            <Profile />
+          </ProtectedRoute>
+        }
+      />
     </Routes>
   );
 }

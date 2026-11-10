@@ -5,7 +5,7 @@ import {
   getFeedController,
   likePostController,
   unlikePostController,
-} from "../Controllers/PostControllers";
+} from "../Controllers/PostControllers.js";
 
 const router = express.Router();
 

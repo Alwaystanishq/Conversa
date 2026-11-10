@@ -3,13 +3,15 @@ import {
   getCurrentUserController,
   loginController,
   registerController,
-} from "../Controllers/AuthControllers";
-import { authToken } from "../Middlewares/AuthMiddleware";
+} from "../Controllers/AuthControllers.js";
+import { authToken } from "../Middlewares/AuthMiddleware.js";
 
-const router = express.Router();
+export default function createAuthRouter(authLimiter) {
+  const router = express.Router();
 
-router.post("/login", loginController);
-router.post("/register", registerController);
-router.get("/me", authToken, getCurrentUserController);
+  router.post("/login", authLimiter, loginController);
+  router.post("/register", authLimiter, registerController);
+  router.get("/me", authToken, getCurrentUserController);
 
-export default router;
+  return router;
+}

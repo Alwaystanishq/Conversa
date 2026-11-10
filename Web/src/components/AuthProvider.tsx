@@ -1,4 +1,5 @@
 import { useEffect } from "react";
+import { isAxiosError } from "axios";
 import api from "../api/client";
 import useAuthStore from "../store/authStore";
 
@@ -23,15 +24,15 @@ export default function AuthProvider({ children }: Props) {
         const response = await api.get("/auth/me");
 
         setUser(response.data.user);
-      } catch {
-        logout();
+      } catch (error) {
+        if (isAxiosError(error) && error.response?.status === 401) logout();
       } finally {
         setLoading(false);
       }
     };
 
     checkAuth();
-  }, []);
+  }, [token, setUser, setLoading, logout]);
 
   return <>{children}</>;
 }

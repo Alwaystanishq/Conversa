@@ -4,7 +4,7 @@ import {
   getUserProfileController,
   searchUsersController,
   unfollowUserController,
-} from "../Controllers/UserControllers";
+} from "../Controllers/UserControllers.js";
 
 const router = express.Router();
 

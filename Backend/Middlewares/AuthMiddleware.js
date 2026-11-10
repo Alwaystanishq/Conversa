@@ -22,6 +22,9 @@ export const authToken = async (req, res, next) => {
     req.user = user;
     next();
   } catch (error) {
+    if (error instanceof jwt.JsonWebTokenError || error instanceof jwt.TokenExpiredError || error instanceof jwt.NotBeforeError) {
+      return res.status(401).json({ success: false, message: "Invalid or expired token" });
+    }
     console.error("Auth Middleware Error:", error);
     return res.status(500).json({
       success: false,

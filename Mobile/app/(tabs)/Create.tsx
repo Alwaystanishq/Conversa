@@ -29,7 +29,7 @@ export default function Create() {
 
     try {
       setIsLoading(true);
-      await api.post("/post", {
+      await api.post("/posts", {
         content: trimmedContent,
       });
       setContent("");

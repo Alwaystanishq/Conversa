@@ -26,7 +26,7 @@ export default function Profile() {
       const response = await api.get(`/users/${profileUsername}`);
 
       setProfile(response.data.user);
-      setPosts(response.data.posts || []);
+      setPosts(response.data.userPosts || []);
       setLikedPosts(response.data.likedPosts || []);
     } catch (error) {
       console.log(error);

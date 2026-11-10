@@ -1,16 +1,35 @@
 import { create } from "zustand";
 import { storage } from "../utils/storage";
 
-const useAuthStore = create((set) => ({
+type User = {
+  _id: string;
+  name: string;
+  username: string;
+  email: string;
+  bio?: string;
+  followers: string[];
+  following: string[];
+};
+
+type AuthState = {
+  user: User | null;
+  isLoading: boolean;
+  setAuth: (token: string, user: User) => Promise<void>;
+  setUser: (user: User) => void;
+  logout: () => Promise<void>;
+  setLoading: (loading: boolean) => void;
+};
+
+const useAuthStore = create<AuthState>((set) => ({
   user: null,
   isLoading: true,
 
-  setAuth: async (token: string, user: any) => {
+  setAuth: async (token, user) => {
     await storage.setToken(token);
     set({ user, isLoading: false });
   },
 
-  setUser: (user: any) => {
+  setUser: (user) => {
     set({ user, isLoading: false });
   },
 
