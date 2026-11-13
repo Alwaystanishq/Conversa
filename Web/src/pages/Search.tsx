@@ -1,88 +1,35 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import api from "../api/client";
+import type { Person } from "../types";
+import Icon from "../components/Icon";
 
 export default function Search() {
   const [query, setQuery] = useState("");
-  const [users, setUsers] = useState<any[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
+  const [result, setResult] = useState<{ query: string; users: Person[]; error: string }>({ query: "", users: [], error: "" });
+  const term = query.trim();
+  const isLoading = Boolean(term && result.query !== term);
 
   useEffect(() => {
+    if (!term) return;
+    const controller = new AbortController();
     const timeout = setTimeout(() => {
-      searchUsers();
-    }, 400);
-
-    return () => clearTimeout(timeout);
-  }, [query]);
-
-  const searchUsers = async () => {
-    if (!query.trim()) {
-      setUsers([]);
-      return;
-    }
-
-    try {
-      setIsLoading(true);
-
-      const response = await api.get("/users/search", {
-        params: {
-          query,
-        },
+      api.get("/users/search", { params: { query: term }, signal: controller.signal }).then((response) => {
+        setResult({ query: term, users: response.data.users, error: "" });
+      }).catch(() => {
+        if (!controller.signal.aborted) setResult({ query: term, users: [], error: "Search couldn't load. Please try another search." });
       });
-
-      setUsers(response.data.users);
-    } catch (error) {
-      console.log(error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
+    }, 350);
+    return () => { clearTimeout(timeout); controller.abort(); };
+  }, [term]);
 
   return (
-    <div className="min-h-screen bg-zinc-950 px-6 py-10">
-      <div className="mx-auto max-w-3xl">
-        <h1 className="text-4xl font-bold text-white">Search Users</h1>
-
-        <p className="mt-2 text-zinc-400">Find people to follow.</p>
-
-        <input
-          type="text"
-          placeholder="Search by name or username..."
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-          className="mt-8 w-full rounded-xl border border-zinc-800 bg-zinc-900 px-5 py-3 text-white outline-none focus:border-violet-500"
-        />
-
-        {isLoading && <p className="mt-6 text-zinc-400">Searching...</p>}
-
-        {!isLoading && users.length === 0 && query && (
-          <p className="mt-6 text-zinc-500">No users found.</p>
-        )}
-
-        <div className="mt-8 space-y-4">
-          {users.map((user) => (
-            <Link
-              key={user._id}
-              to={`/profile/${user.username}`}
-              className="flex items-center gap-4 rounded-2xl border border-zinc-800 bg-zinc-900 p-5 transition hover:border-violet-500"
-            >
-              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-violet-600 text-lg font-bold text-white">
-                {user.name?.charAt(0).toUpperCase()}
-              </div>
-
-              <div>
-                <h2 className="font-semibold text-white">{user.name}</h2>
-
-                <p className="text-sm text-zinc-400">@{user.username}</p>
-
-                {user.bio && (
-                  <p className="mt-1 text-sm text-zinc-500">{user.bio}</p>
-                )}
-              </div>
-            </Link>
-          ))}
-        </div>
+    <>
+      <header className="page-header"><div><h1>Find people</h1><p>Search by name or username.</p></div></header>
+      <div className="search-field"><Icon name="search" /><input type="search" aria-label="Search people by name or username" placeholder="Search by name or username" value={query} onChange={(event) => setQuery(event.target.value)} /></div>
+      <div aria-live="polite" aria-atomic="true">
+        {!term ? <div className="empty-state search-empty"><span className="empty-icon"><Icon name="search" size={32} /></span><h2>Who are you looking for?</h2><p>Enter a name above to find their profile.</p></div> : isLoading ? <div className="feed-loading" role="status"><span className="spinner" />Searching…</div> : result.error ? <p className="error-message" role="alert">{result.error}</p> : <><div className="section-heading"><h2>People</h2><span>{result.users.length} {result.users.length === 1 ? "result" : "results"}</span></div>{result.users.length === 0 ? <div className="empty-state"><Icon name="search" size={28} /><h2>No people found</h2><p>Try a different name or check your spelling.</p></div> : <div className="people-list">{result.users.map((person) => <Link key={person._id} to={`/profile/${person.username}`} className="person-card"><span className="avatar">{person.name?.charAt(0).toUpperCase()}</span><span className="user-details"><strong>{person.name}</strong><span>@{person.username}</span>{person.bio && <span className="person-bio">{person.bio}</span>}</span><Icon name="arrow" size={18} /></Link>)}</div>}</>}
       </div>
-    </div>
+    </>
   );
 }

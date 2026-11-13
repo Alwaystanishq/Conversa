@@ -1,158 +1,79 @@
 import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
+import { isAxiosError } from "axios";
 import api from "../api/client";
 import useAuthStore from "../store/authStore";
+import type { Person, Post } from "../types";
+import Icon from "../components/Icon";
+import PostCard from "../components/PostCard";
 
 export default function Profile() {
   const { username } = useParams();
-
   const currentUser = useAuthStore((state) => state.user);
+  const profileUsername = username || currentUser?.username;
+  const [data, setData] = useState<{ profile: Person; posts: Post[]; likedPosts: Post[] } | null>(null);
+  const [loadedUsername, setLoadedUsername] = useState<string>();
+  const [error, setError] = useState("");
+  const [tab, setTab] = useState("posts");
+  const [isFollowing, setIsFollowing] = useState(false);
+  const [followError, setFollowError] = useState("");
+  const [attempt, setAttempt] = useState(0);
 
-  const [profile, setProfile] = useState<any>(null);
-  const [posts, setPosts] = useState<any[]>([]);
-  const [likedPosts, setLikedPosts] = useState<any[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  function updateLikes(id: string, likes: string[]) {
+    setData((data) => data && ({
+      ...data,
+      posts: data.posts.map((post) => post._id === id ? { ...post, likes } : post),
+      likedPosts: data.likedPosts.map((post) => post._id === id ? { ...post, likes } : post),
+    }));
+  }
 
   useEffect(() => {
-    getProfile();
-  }, [username]);
+    const controller = new AbortController();
+    api.get(`/users/${profileUsername}`, { signal: controller.signal }).then((response) => {
+      setData({ profile: response.data.user, posts: response.data.userPosts || [], likedPosts: response.data.likedPosts || [] });
+      setError("");
+      setFollowError("");
+      setTab("posts");
+    }).catch((error) => {
+      if (!controller.signal.aborted) {
+        setData(null);
+        setError(isAxiosError(error) && error.response?.status === 404 ? "This person couldn't be found." : "This profile couldn't load. Please try again.");
+      }
+    }).finally(() => {
+      if (!controller.signal.aborted) setLoadedUsername(profileUsername);
+    });
+    return () => controller.abort();
+  }, [profileUsername, attempt]);
 
-  const getProfile = async () => {
+  async function toggleFollow() {
+    if (!data || !currentUser || isFollowing) return;
+    const following = data.profile.followers?.includes(currentUser._id);
+    setIsFollowing(true);
+    setFollowError("");
     try {
-      setIsLoading(true);
-
-      const profileUsername = username || currentUser?.username;
-
-      const response = await api.get(`/users/${profileUsername}`);
-
-      setProfile(response.data.user);
-      setPosts(response.data.userPosts || []);
-      setLikedPosts(response.data.likedPosts || []);
-    } catch (error) {
-      console.log(error);
+      await api.put(`/users/${data.profile._id}/${following ? "unfollow" : "follow"}`);
+      setData({ ...data, profile: { ...data.profile, followers: following ? data.profile.followers?.filter((id) => id !== currentUser._id) : [...(data.profile.followers || []), currentUser._id] } });
+    } catch {
+      setFollowError("Couldn't update your follow. Please try again.");
     } finally {
-      setIsLoading(false);
+      setIsFollowing(false);
     }
-  };
-
-  if (isLoading) {
-    return (
-      <div className="flex min-h-screen items-center justify-center bg-zinc-950">
-        <h1 className="text-white text-xl">Loading...</h1>
-      </div>
-    );
   }
 
-  if (!profile) {
-    return (
-      <div className="flex min-h-screen items-center justify-center bg-zinc-950">
-        <h1 className="text-white text-xl">User not found.</h1>
-      </div>
-    );
-  }
+  if (loadedUsername !== profileUsername) return <div className="feed-loading" role="status"><span className="spinner" />Loading profile…</div>;
+  if (!data) return <div className="empty-state"><Icon name="user" size={32} /><h1>Profile unavailable</h1><p role="alert">{error}</p><div className="empty-actions"><button className="button button-secondary" onClick={() => { setLoadedUsername(undefined); setAttempt(attempt + 1); }}>Try again</button><Link className="text-link" to="/search">Discover people<Icon name="arrow" size={16} /></Link></div></div>;
+
+  const { profile, posts, likedPosts } = data;
+  const ownProfile = currentUser?._id === profile._id;
+  const following = profile.followers?.includes(currentUser?._id || "");
+  const visiblePosts = tab === "posts" ? posts : likedPosts;
 
   return (
-    <div className="min-h-screen bg-zinc-950 px-6 py-10">
-      <div className="mx-auto max-w-3xl">
-        {/* Profile Card */}
-        <div className="rounded-2xl border border-zinc-800 bg-zinc-900 p-8">
-          <div className="flex items-center gap-5">
-            <div className="flex h-20 w-20 items-center justify-center rounded-full bg-violet-600 text-3xl font-bold text-white">
-              {profile.name?.charAt(0).toUpperCase()}
-            </div>
-
-            <div>
-              <h1 className="text-3xl font-bold text-white">{profile.name}</h1>
-
-              <p className="text-zinc-400">@{profile.username}</p>
-
-              {profile.bio && (
-                <p className="mt-3 text-zinc-300">{profile.bio}</p>
-              )}
-            </div>
-          </div>
-
-          <div className="mt-8 flex gap-10">
-            <div>
-              <p className="text-2xl font-bold text-white">{posts.length}</p>
-
-              <p className="text-zinc-500">Posts</p>
-            </div>
-
-            <div>
-              <p className="text-2xl font-bold text-white">
-                {profile.followers?.length || 0}
-              </p>
-
-              <p className="text-zinc-500">Followers</p>
-            </div>
-
-            <div>
-              <p className="text-2xl font-bold text-white">
-                {profile.following?.length || 0}
-              </p>
-
-              <p className="text-zinc-500">Following</p>
-            </div>
-          </div>
-        </div>
-
-        {/* Posts */}
-        <div className="mt-10">
-          <h2 className="mb-5 text-2xl font-bold text-white">Posts</h2>
-
-          {posts.length === 0 ? (
-            <div className="rounded-2xl border border-zinc-800 bg-zinc-900 p-8 text-center text-zinc-500">
-              No posts yet.
-            </div>
-          ) : (
-            <div className="space-y-4">
-              {posts.map((post) => (
-                <div
-                  key={post._id}
-                  className="rounded-2xl border border-zinc-800 bg-zinc-900 p-6"
-                >
-                  <p className="whitespace-pre-wrap text-white">
-                    {post.content}
-                  </p>
-
-                  <p className="mt-4 text-sm text-zinc-500">
-                    ❤️ {post.likes?.length || 0} Likes
-                  </p>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
-
-        {/* Liked Posts */}
-        <div className="mt-12">
-          <h2 className="mb-5 text-2xl font-bold text-white">Liked Posts</h2>
-
-          {likedPosts.length === 0 ? (
-            <div className="rounded-2xl border border-zinc-800 bg-zinc-900 p-8 text-center text-zinc-500">
-              No liked posts.
-            </div>
-          ) : (
-            <div className="space-y-4">
-              {likedPosts.map((post) => (
-                <div
-                  key={post._id}
-                  className="rounded-2xl border border-zinc-800 bg-zinc-900 p-6"
-                >
-                  <p className="whitespace-pre-wrap text-white">
-                    {post.content}
-                  </p>
-
-                  <p className="mt-4 text-sm text-zinc-500">
-                    @{post.author?.username}
-                  </p>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
-      </div>
-    </div>
+    <>
+      <header className="page-header"><div><h1>{ownProfile ? "Your profile" : "Profile"}</h1><p>{ownProfile ? "Your posts and connections." : `Posts and updates from @${profile.username}.`}</p></div></header>
+      <section className="profile-card" aria-label="Profile"><div className="profile-cover" aria-hidden="true" /><div className="profile-body"><div className="profile-top"><span className="avatar profile-avatar">{profile.name?.charAt(0).toUpperCase()}</span>{ownProfile ? <Link to="/create" className="button button-secondary"><Icon name="plus" size={16} />Write a post</Link> : <button onClick={toggleFollow} disabled={isFollowing} className={`button ${following ? "button-secondary" : "button-primary"}`} aria-pressed={Boolean(following)}>{isFollowing ? "Updating…" : following ? "Following" : "Follow"}{following && <Icon name="check" size={16} />}</button>}</div><h2>{profile.name}</h2><p className="profile-handle">@{profile.username}</p>{profile.bio && <p className="profile-bio">{profile.bio}</p>}{followError && <p className="error-message" role="alert">{followError}</p>}<dl className="profile-stats"><div><dt>Posts</dt><dd>{posts.length}</dd></div><div><dt>Followers</dt><dd>{profile.followers?.length || 0}</dd></div><div><dt>Following</dt><dd>{profile.following?.length || 0}</dd></div></dl></div></section>
+      <div className="profile-tabs" role="group" aria-label="Profile post filter"><button onClick={() => setTab("posts")} aria-pressed={tab === "posts"}>Posts <span>{posts.length}</span></button><button onClick={() => setTab("likes")} aria-pressed={tab === "likes"}><Icon name="heart" size={16} />Liked posts <span>{likedPosts.length}</span></button></div>
+      {visiblePosts.length === 0 ? <div className="empty-state"><span className="empty-icon"><Icon name={tab === "posts" ? "chat" : "heart"} size={28} /></span><h2>{tab === "posts" ? "No posts yet" : "No liked posts"}</h2><p>{tab === "posts" ? "Posts will appear here once they’re published." : "Liked posts will appear here."}</p>{ownProfile && tab === "posts" && <Link to="/create" className="button button-primary">Write your first post<Icon name="arrow" size={17} /></Link>}</div> : <div className="post-list">{visiblePosts.map((post) => <PostCard key={post._id} post={post} onLike={updateLikes} />)}</div>}
+    </>
   );
 }

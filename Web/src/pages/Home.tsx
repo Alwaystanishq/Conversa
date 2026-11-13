@@ -1,91 +1,44 @@
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import api from "../api/client";
+import useAuthStore from "../store/authStore";
+import type { Post } from "../types";
+import PostCard from "../components/PostCard";
+import Icon from "../components/Icon";
 
 export default function Home() {
-  const [posts, setPosts] = useState<any[]>([]);
+  const user = useAuthStore((state) => state.user);
+  const location = useLocation();
+  const [posts, setPosts] = useState<Post[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState("");
+  const [attempt, setAttempt] = useState(0);
 
-  const getFeed = async () => {
-    try {
-      const response = await api.get("/posts/feed");
-      setPosts(response.data.posts);
-    } catch (error) {
-      console.log(error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    getFeed();
-  }, []);
-
-  if (isLoading) {
-    return (
-      <div className="flex min-h-screen items-center justify-center bg-zinc-950">
-        <h1 className="text-xl text-white">Loading...</h1>
-      </div>
-    );
+  function updateLikes(id: string, likes: string[]) {
+    setPosts((posts) => posts.map((post) => post._id === id ? { ...post, likes } : post));
   }
 
+  useEffect(() => {
+    const controller = new AbortController();
+    api.get("/posts/feed", { signal: controller.signal }).then((response) => {
+      setPosts(response.data.posts);
+      setError("");
+    }).catch(() => {
+      if (!controller.signal.aborted) setError("Your feed couldn't load. Let's try that again.");
+    }).finally(() => {
+      if (!controller.signal.aborted) setIsLoading(false);
+    });
+    return () => controller.abort();
+  }, [attempt]);
+
   return (
-    <div className="min-h-screen bg-zinc-950 px-6 py-10">
-      <div className="mx-auto max-w-3xl">
-        <h1 className="mb-8 text-4xl font-bold text-white">Home</h1>
-
-        {posts.length === 0 ? (
-          <div className="rounded-2xl border border-zinc-800 bg-zinc-900 p-10 text-center">
-            <h2 className="text-xl font-semibold text-white">No posts yet</h2>
-
-            <p className="mt-2 text-zinc-400">
-              Follow people or create your first post.
-            </p>
-          </div>
-        ) : (
-          <div className="space-y-5">
-            {posts.map((post) => (
-              <div
-                key={post._id}
-                className="rounded-2xl border border-zinc-800 bg-zinc-900 p-6"
-              >
-                <Link
-                  to={`/profile/${post.author.username}`}
-                  className="flex items-center gap-4"
-                >
-                  <div className="flex h-12 w-12 items-center justify-center rounded-full bg-violet-600 text-lg font-bold text-white">
-                    {post.author?.name?.charAt(0)?.toUpperCase() || "U"}
-                  </div>
-
-                  <div>
-                    <h2 className="font-semibold text-white hover:text-violet-400">
-                      {post.author?.name}
-                    </h2>
-
-                    <p className="text-sm text-zinc-400">
-                      @{post.author?.username}
-                    </p>
-                  </div>
-                </Link>
-
-                <p className="mt-5 whitespace-pre-wrap text-zinc-200">
-                  {post.content}
-                </p>
-
-                <div className="mt-5 flex items-center justify-between border-t border-zinc-800 pt-4">
-                  <span className="text-sm text-zinc-400">
-                    ❤️ {post.likes?.length || 0} Likes
-                  </span>
-
-                  <span className="text-xs text-zinc-500">
-                    {new Date(post.createdAt).toLocaleDateString()}
-                  </span>
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
-    </div>
+    <>
+      <header className="page-header"><div><h1>Home feed</h1><p>Posts from you and the people you follow.</p></div><span className="header-icon"><Icon name="home" size={24} /></span></header>
+      {location.state?.posted && <p className="success-message" role="status"><Icon name="check" size={18} />Your post has been published.</p>}
+      <Link to="/create" className="feed-composer"><span className="avatar">{user?.name.charAt(0).toUpperCase() || "U"}</span><span>What's on your mind, {user?.name.split(" ")[0]}?</span><span className="composer-plus"><Icon name="plus" /></span></Link>
+      <div className="section-heading"><h2>Recent posts</h2><span>Latest first</span></div>
+      {isLoading ? <div className="feed-loading" role="status"><span className="spinner" />Loading posts…</div> : error ? <div className="empty-state"><Icon name="chat" size={30} /><h2>Couldn’t load your feed</h2><p role="alert">{error}</p><button className="button button-secondary" onClick={() => { setIsLoading(true); setAttempt(attempt + 1); }}>Try again</button></div> : posts.length === 0 ? <div className="empty-state"><span className="empty-icon"><Icon name="chat" size={32} /></span><h2>No posts yet</h2><p>Write a post or follow someone to see their updates here.</p><div className="empty-actions"><Link className="button button-primary" to="/create"><Icon name="plus" size={18} />Write a post</Link><Link className="button button-secondary" to="/search">Find people<Icon name="arrow" size={17} /></Link></div></div> : <div className="post-list">{posts.map((post) => <PostCard key={post._id} post={post} onLike={updateLikes} />)}</div>}
+      {!isLoading && !error && posts.length > 0 && <p className="feed-end">You're all caught up.</p>}
+    </>
   );
 }

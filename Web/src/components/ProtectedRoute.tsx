@@ -11,14 +11,14 @@ export default function ProtectedRoute({ children }: Props) {
 
   if (isLoading) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-zinc-950 text-white">
+      <div className="auth-loading" role="status">
         Loading...
       </div>
     );
   }
 
   if (!user) {
-    return <Navigate to="/" replace />;
+    return <Navigate to="/login" replace />;
   }
 
   return children;

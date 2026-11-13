@@ -1,20 +1,20 @@
 export const colors = {
-  background: "#09090B",
-  surface: "#18181B",
+  background: "#000000",
+  surface: "#000000",
 
-  primary: "#7C3AED",
-  primaryHover: "#6D28D9",
+  primary: "#0B76B8",
+  primaryHover: "#09649D",
   primaryText: "#FFFFFF",
 
-  text: "#FAFAFA",
-  textSecondary: "#A1A1AA",
-  textMuted: "#71717A",
+  text: "#E7E9EA",
+  textSecondary: "#8B9095",
+  textMuted: "#8B9095",
 
-  border: "#27272A",
+  border: "#2F3336",
 
-  success: "#22C55E",
-  error: "#EF4444",
-  warning: "#F59E0B",
+  success: "#5DB78B",
+  error: "#FF4353",
+  warning: "#FFB454",
 };
 
 export const spacing = {
@@ -35,5 +35,5 @@ export const radius = {
 };
 
 export const shadow = {
-  card: "0 8px 24px rgba(0,0,0,0.25)",
+  card: "none",
 };
