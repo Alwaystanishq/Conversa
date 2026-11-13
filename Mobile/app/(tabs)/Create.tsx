@@ -57,6 +57,7 @@ export default function Create() {
             </Text>
             <View style={styles.editor}>
               <TextInput
+                selectionColor={colors.accent}
                 style={styles.input}
                 placeholder="Write something..."
                 placeholderTextColor={colors.textMuted}
@@ -122,11 +123,11 @@ const styles = StyleSheet.create({
   editor: {
     minHeight: 220,
     marginTop: spacing.xl,
-    borderWidth: 1,
+    borderTopWidth: 1,
+    borderBottomWidth: 1,
     borderColor: colors.border,
-    borderRadius: radius.lg,
     backgroundColor: colors.surface,
-    padding: spacing.lg,
+    paddingVertical: spacing.lg,
   },
 
   input: {
@@ -146,7 +147,8 @@ const styles = StyleSheet.create({
 
   postButton: {
     alignItems: "center",
-    borderRadius: radius.lg,
+    borderRadius: radius.full,
+    minHeight: 48,
     backgroundColor: colors.primary,
     paddingVertical: spacing.lg,
   },

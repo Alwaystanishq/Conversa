@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { Ionicons } from "@expo/vector-icons";
 import {
   ActivityIndicator,
   Alert,
@@ -140,9 +141,10 @@ export default function Search() {
         </Text>
 
         <View style={styles.searchBox}>
-          <Text style={styles.searchIcon}>⌕</Text>
+          <Ionicons name="search-outline" size={21} color={colors.textMuted} style={styles.searchIcon} />
 
           <TextInput
+            selectionColor={colors.accent}
             style={styles.searchInput}
             placeholder="Search name or username"
             placeholderTextColor={colors.textMuted}
@@ -218,8 +220,8 @@ const styles = StyleSheet.create({
     marginTop: spacing.xl,
     borderWidth: 1,
     borderColor: colors.border,
-    borderRadius: radius.lg,
-    backgroundColor: colors.surface,
+    borderRadius: radius.full,
+    backgroundColor: colors.surfaceRaised,
     paddingHorizontal: spacing.lg,
   },
 
@@ -245,12 +247,9 @@ const styles = StyleSheet.create({
   userCard: {
     flexDirection: "row",
     alignItems: "center",
-    marginBottom: spacing.md,
-    borderWidth: 1,
-    borderColor: colors.border,
-    borderRadius: radius.lg,
-    backgroundColor: colors.surface,
-    padding: spacing.md,
+    borderBottomWidth: 1,
+    borderBottomColor: colors.border,
+    paddingVertical: spacing.lg,
   },
 
   avatar: {
@@ -293,7 +292,9 @@ const styles = StyleSheet.create({
 
   followButton: {
     marginLeft: spacing.sm,
-    borderRadius: radius.md,
+    borderRadius: radius.full,
+    minHeight: 40,
+    justifyContent: "center",
     backgroundColor: colors.primary,
     paddingHorizontal: spacing.md,
     paddingVertical: spacing.sm,

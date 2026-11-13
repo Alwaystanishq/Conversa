@@ -60,11 +60,7 @@ export default function Login() {
         <View style={styles.container}>
           <View>
             <View style={styles.brandRow}>
-              <View style={styles.logo}>
-                <Text style={styles.logoText}>C</Text>
-              </View>
-
-              <Text style={styles.brand}>Conversa</Text>
+              <Text style={styles.brand}>conversa<Text style={styles.brandDot}>.</Text></Text>
             </View>
 
             <Text style={styles.title}>Welcome back</Text>
@@ -77,6 +73,7 @@ export default function Login() {
               <Text style={styles.label}>Email address</Text>
 
               <TextInput
+                selectionColor={colors.accent}
                 style={styles.input}
                 placeholder="you@example.com"
                 placeholderTextColor={colors.textMuted}
@@ -98,6 +95,7 @@ export default function Login() {
 
               <View style={styles.passwordBox}>
                 <TextInput
+                selectionColor={colors.accent}
                   style={styles.passwordInput}
                   placeholder="Enter your password"
                   placeholderTextColor={colors.textMuted}
@@ -176,26 +174,15 @@ const styles = StyleSheet.create({
     marginBottom: 48,
   },
 
-  logo: {
-    width: 48,
-    height: 48,
-    borderRadius: radius.lg,
-    backgroundColor: colors.primary,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-
-  logoText: {
-    fontSize: 23,
-    fontWeight: "900",
-    color: colors.primaryText,
-  },
-
   brand: {
-    marginLeft: spacing.md,
-    fontSize: 24,
-    fontWeight: "700",
+    fontSize: 30,
+    fontWeight: "800",
+    letterSpacing: -1.5,
     color: colors.text,
+  },
+
+  brandDot: {
+    color: colors.accent,
   },
 
   title: {
@@ -219,13 +206,13 @@ const styles = StyleSheet.create({
     marginBottom: spacing.sm,
     fontSize: 14,
     fontWeight: "600",
-    color: "#d4d4d8",
+    color: colors.text,
   },
 
   input: {
     borderWidth: 1,
-    borderColor: colors.border,
-    borderRadius: radius.lg,
+    borderColor: colors.inputBorder,
+    borderRadius: radius.md,
     backgroundColor: colors.surface,
     paddingHorizontal: spacing.lg,
     paddingVertical: spacing.lg,
@@ -250,8 +237,8 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     borderWidth: 1,
-    borderColor: colors.border,
-    borderRadius: radius.lg,
+    borderColor: colors.inputBorder,
+    borderRadius: radius.md,
     backgroundColor: colors.surface,
   },
 
@@ -271,15 +258,16 @@ const styles = StyleSheet.create({
   showText: {
     fontSize: 14,
     fontWeight: "600",
-    color: "#d4d4d8",
+    color: colors.accent,
   },
 
   primaryButton: {
     marginTop: 28,
     alignItems: "center",
-    borderRadius: radius.lg,
+    borderRadius: radius.full,
     backgroundColor: colors.primary,
     paddingVertical: spacing.lg,
+    minHeight: 48,
   },
 
   buttonDisabled: {
@@ -305,6 +293,6 @@ const styles = StyleSheet.create({
   bottomLink: {
     fontSize: 14,
     fontWeight: "700",
-    color: colors.text,
+    color: colors.accent,
   },
 });

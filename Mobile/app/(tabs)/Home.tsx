@@ -1,4 +1,5 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useState } from "react";
+import { useFocusEffect } from "expo-router";
 import {
   ActivityIndicator,
   FlatList,
@@ -9,14 +10,15 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import api from "../../api/client";
-import { colors, radius, spacing } from "../../constants/theme";
+import { colors, spacing } from "../../constants/theme";
+import LikeButton from "../../components/LikeButton";
 
 export default function Home() {
   const [posts, setPosts] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isRefreshing, setIsRefreshing] = useState(false);
 
-  const getFeed = async () => {
+  const getFeed = useCallback(async () => {
     try {
       const response = await api.get("/posts/feed");
       setPosts(response.data.posts);
@@ -29,22 +31,26 @@ export default function Home() {
       setIsLoading(false);
       setIsRefreshing(false);
     }
-  };
-
-  useEffect(() => {
-    getFeed();
   }, []);
+
+  useFocusEffect(useCallback(() => {
+    getFeed();
+  }, [getFeed]));
 
   const handleRefresh = useCallback(() => {
     setIsRefreshing(true);
     getFeed();
-  }, []);
+  }, [getFeed]);
+
+  function updateLikes(id: string, likes: string[]) {
+    setPosts((posts) => posts.map((post) => post._id === id ? { ...post, likes } : post));
+  }
 
   if (isLoading) {
     return (
       <SafeAreaView style={styles.safeArea}>
         <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color={colors.text} />
+          <ActivityIndicator size="large" color={colors.accent} />
         </View>
       </SafeAreaView>
     );
@@ -73,9 +79,7 @@ export default function Home() {
             <Text style={styles.content}>{item.content}</Text>
 
             <View style={styles.postFooter}>
-              <Text style={styles.likeText}>
-                {item.likes?.length || 0} likes
-              </Text>
+              <LikeButton postId={item._id} likes={item.likes} onChange={(likes) => updateLikes(item._id, likes)} />
             </View>
           </View>
         )}
@@ -93,7 +97,7 @@ export default function Home() {
           <RefreshControl
             refreshing={isRefreshing}
             onRefresh={handleRefresh}
-            tintColor={colors.text}
+            tintColor={colors.accent}
           />
         }
         showsVerticalScrollIndicator={false}
@@ -129,12 +133,12 @@ const styles = StyleSheet.create({
   },
 
   postCard: {
-    marginBottom: spacing.md,
-    borderWidth: 1,
-    borderColor: colors.border,
-    borderRadius: radius.lg,
-    backgroundColor: colors.surface,
-    padding: spacing.lg,
+    borderBottomWidth: 1,
+    borderBottomColor: colors.border,
+    backgroundColor: colors.background,
+    marginHorizontal: -spacing.xl,
+    paddingHorizontal: spacing.xl,
+    paddingVertical: 20,
   },
 
   postHeader: {
@@ -180,14 +184,6 @@ const styles = StyleSheet.create({
 
   postFooter: {
     marginTop: spacing.lg,
-    borderTopWidth: 1,
-    borderTopColor: colors.border,
-    paddingTop: spacing.md,
-  },
-
-  likeText: {
-    fontSize: 13,
-    color: colors.textSecondary,
   },
 
   emptyContainer: {

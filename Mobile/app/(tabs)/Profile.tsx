@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useState } from "react";
 import {
   ActivityIndicator,
   Alert,
@@ -10,10 +10,11 @@ import {
   View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { router } from "expo-router";
+import { router, useFocusEffect } from "expo-router";
 import api from "../../api/client";
 import { colors, radius, spacing } from "../../constants/theme";
 import useAuthStore from "../../store/authStore";
+import LikeButton from "../../components/LikeButton";
 
 export default function Profile() {
   const currentUser = useAuthStore((state) => state.user);
@@ -23,7 +24,7 @@ export default function Profile() {
   const [isLoading, setIsLoading] = useState(true);
   const [isRefreshing, setIsRefreshing] = useState(false);
 
-  const getProfile = async () => {
+  const getProfile = useCallback(async () => {
     if (!currentUser?.username) {
       setIsLoading(false);
       return;
@@ -41,16 +42,31 @@ export default function Profile() {
       setIsLoading(false);
       setIsRefreshing(false);
     }
-  };
+  }, [currentUser?.username]);
 
-  useEffect(() => {
+  useFocusEffect(useCallback(() => {
     getProfile();
-  }, []);
+  }, [getProfile]));
 
   const handleRefresh = useCallback(() => {
     setIsRefreshing(true);
     getProfile();
-  }, []);
+  }, [getProfile]);
+
+  function updateLikes(id: string, likes: string[]) {
+    setProfile((profile: any) => {
+      if (!profile) return profile;
+      const updatePost = (post: any) => post._id === id ? { ...post, likes } : post;
+      const posts = (profile.posts || []).map(updatePost);
+      const post = posts.find((post: any) => post._id === id) || profile.likedPosts?.find((post: any) => post._id === id);
+      const likedPosts = (profile.likedPosts || []).filter((post: any) => post._id !== id);
+      if (post && currentUser && likes.includes(currentUser._id)) {
+        likedPosts.push({ ...post, likes });
+        likedPosts.sort((a: any, b: any) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+      }
+      return { ...profile, posts, likedPosts };
+    });
+  }
 
   const handleLogout = () => {
     Alert.alert("Log out", "Are you sure you want to log out?", [
@@ -73,7 +89,7 @@ export default function Profile() {
     return (
       <SafeAreaView style={styles.safeArea}>
         <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color={colors.text} />
+          <ActivityIndicator size="large" color={colors.accent} />
         </View>
       </SafeAreaView>
     );
@@ -92,9 +108,7 @@ export default function Profile() {
           <View style={styles.postCard}>
             <Text style={styles.postContent}>{item.content}</Text>
 
-            <Text style={styles.postLikes}>
-              {item.likes?.length || 0} likes
-            </Text>
+            <LikeButton postId={item._id} likes={item.likes} onChange={(likes) => updateLikes(item._id, likes)} />
           </View>
         )}
         ListHeaderComponent={
@@ -162,6 +176,7 @@ export default function Profile() {
                   <Text style={styles.postLikes}>
                     @{post.author?.username || "user"}
                   </Text>
+                  <LikeButton postId={post._id} likes={post.likes} onChange={(likes) => updateLikes(post._id, likes)} />
                 </View>
               ))}
             </View>
@@ -172,7 +187,7 @@ export default function Profile() {
           <RefreshControl
             refreshing={isRefreshing}
             onRefresh={handleRefresh}
-            tintColor={colors.text}
+            tintColor={colors.accent}
           />
         }
         showsVerticalScrollIndicator={false}
@@ -215,9 +230,9 @@ const styles = StyleSheet.create({
   logoutButton: {
     borderWidth: 1,
     borderColor: colors.border,
-    borderRadius: radius.md,
+    borderRadius: radius.full,
     backgroundColor: colors.surface,
-    paddingHorizontal: spacing.md,
+    paddingHorizontal: spacing.lg,
     paddingVertical: spacing.sm,
   },
 
@@ -229,12 +244,10 @@ const styles = StyleSheet.create({
 
   profileCard: {
     marginTop: spacing.xl,
-    alignItems: "center",
-    borderWidth: 1,
-    borderColor: colors.border,
-    borderRadius: radius.lg,
-    backgroundColor: colors.surface,
-    padding: spacing.xl,
+    alignItems: "flex-start",
+    borderBottomWidth: 1,
+    borderBottomColor: colors.border,
+    paddingVertical: spacing.xl,
   },
 
   avatar: {
@@ -267,7 +280,6 @@ const styles = StyleSheet.create({
 
   bio: {
     marginTop: spacing.md,
-    textAlign: "center",
     fontSize: 14,
     lineHeight: 20,
     color: colors.textSecondary,
@@ -276,7 +288,8 @@ const styles = StyleSheet.create({
   statsRow: {
     width: "100%",
     flexDirection: "row",
-    justifyContent: "space-around",
+    justifyContent: "flex-start",
+    gap: spacing.xxl,
     marginTop: spacing.xl,
     borderTopWidth: 1,
     borderTopColor: colors.border,
@@ -284,7 +297,7 @@ const styles = StyleSheet.create({
   },
 
   stat: {
-    alignItems: "center",
+    alignItems: "flex-start",
   },
 
   statNumber: {
@@ -308,12 +321,12 @@ const styles = StyleSheet.create({
   },
 
   postCard: {
-    marginBottom: spacing.md,
-    borderWidth: 1,
-    borderColor: colors.border,
-    borderRadius: radius.lg,
-    backgroundColor: colors.surface,
-    padding: spacing.lg,
+    borderBottomWidth: 1,
+    borderBottomColor: colors.border,
+    backgroundColor: colors.background,
+    marginHorizontal: -spacing.xl,
+    paddingHorizontal: spacing.xl,
+    paddingVertical: 20,
   },
 
   postContent: {

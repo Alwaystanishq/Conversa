@@ -1,7 +1,8 @@
 import { useEffect } from "react";
 import { isAxiosError } from "axios";
 import { ActivityIndicator, StyleSheet, View } from "react-native";
-import { Stack, useRouter, useSegments } from "expo-router";
+import { Tabs, useRouter, useSegments } from "expo-router";
+import { Ionicons } from "@expo/vector-icons";
 import { StatusBar } from "expo-status-bar";
 import api from "../../api/client";
 import { colors } from "../../constants/theme";
@@ -31,7 +32,7 @@ function AuthGuard() {
     };
 
     checkAuth();
-  }, []);
+  }, [setUser, logout, setLoading]);
 
   useEffect(() => {
     if (isLoading) return;
@@ -45,17 +46,31 @@ function AuthGuard() {
     if (user && !isInsideTabs) {
       router.replace("/Home");
     }
-  }, [user, isLoading, segments]);
+  }, [user, isLoading, segments, router]);
 
   if (isLoading) {
     return (
       <View style={styles.loadingScreen}>
-        <ActivityIndicator size="large" color={colors.text} />
+        <ActivityIndicator size="large" color={colors.accent} />
       </View>
     );
   }
 
-  return <Stack screenOptions={{ headerShown: false }} />;
+  return (
+    <Tabs screenOptions={{
+      headerShown: false,
+      tabBarActiveTintColor: colors.accent,
+      tabBarInactiveTintColor: colors.textMuted,
+      tabBarStyle: { backgroundColor: colors.background, borderTopColor: colors.border },
+      tabBarLabelStyle: { fontSize: 11, fontWeight: "600" },
+      sceneStyle: { backgroundColor: colors.background },
+    }}>
+      <Tabs.Screen name="Home" options={{ title: "Home", tabBarIcon: ({ color, focused }) => <Ionicons name={focused ? "home" : "home-outline"} size={24} color={color} /> }} />
+      <Tabs.Screen name="Search" options={{ title: "Discover", tabBarIcon: ({ color, focused }) => <Ionicons name={focused ? "search" : "search-outline"} size={24} color={color} /> }} />
+      <Tabs.Screen name="Create" options={{ title: "Post", tabBarIcon: ({ color, focused }) => <Ionicons name={focused ? "add-circle" : "add-circle-outline"} size={25} color={color} /> }} />
+      <Tabs.Screen name="Profile" options={{ title: "Profile", tabBarIcon: ({ color, focused }) => <Ionicons name={focused ? "person" : "person-outline"} size={24} color={color} /> }} />
+    </Tabs>
+  );
 }
 
 export default function RootLayout() {
