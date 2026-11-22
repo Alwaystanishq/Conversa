@@ -10,7 +10,7 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import api from "../../api/client";
-import { colors, spacing } from "../../constants/theme";
+import { colors, sheetShadow, spacing, typography } from "../../constants/theme";
 import LikeButton from "../../components/LikeButton";
 
 export default function Home() {
@@ -119,7 +119,7 @@ const styles = StyleSheet.create({
   },
 
   listContent: {
-    paddingHorizontal: spacing.xl,
+    paddingHorizontal: spacing.lg,
     paddingTop: spacing.lg,
     paddingBottom: 100,
     flexGrow: 1,
@@ -127,18 +127,19 @@ const styles = StyleSheet.create({
 
   title: {
     marginBottom: spacing.xl,
-    fontSize: 28,
-    fontWeight: "800",
+    fontFamily: typography.display,
+    fontSize: 40,
+    fontWeight: "900",
+    letterSpacing: 0.8,
+    textTransform: "uppercase",
     color: colors.text,
   },
 
   postCard: {
-    borderBottomWidth: 1,
-    borderBottomColor: colors.border,
-    backgroundColor: colors.background,
-    marginHorizontal: -spacing.xl,
-    paddingHorizontal: spacing.xl,
-    paddingVertical: 20,
+    ...sheetShadow,
+    backgroundColor: colors.copy,
+    marginBottom: spacing.lg,
+    padding: spacing.lg,
   },
 
   postHeader: {
@@ -152,34 +153,39 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     borderRadius: 21,
-    backgroundColor: colors.border,
+    borderWidth: 1,
+    borderColor: colors.toner,
+    backgroundColor: colors.primary,
   },
 
   avatarText: {
     fontSize: 16,
     fontWeight: "800",
-    color: colors.text,
+    color: colors.toner,
   },
 
   name: {
     marginLeft: spacing.md,
     fontSize: 15,
     fontWeight: "700",
-    color: colors.text,
+    fontFamily: typography.body,
+    color: colors.toner,
   },
 
   username: {
     marginLeft: spacing.md,
     marginTop: 2,
     fontSize: 13,
-    color: colors.textMuted,
+    fontFamily: typography.body,
+    color: colors.tonerMuted,
   },
 
   content: {
     marginTop: spacing.lg,
     fontSize: 16,
     lineHeight: 23,
-    color: colors.text,
+    fontFamily: typography.body,
+    color: colors.toner,
   },
 
   postFooter: {
@@ -187,22 +193,29 @@ const styles = StyleSheet.create({
   },
 
   emptyContainer: {
+    ...sheetShadow,
     flex: 1,
     alignItems: "center",
     justifyContent: "center",
-    paddingBottom: 120,
+    backgroundColor: colors.copy,
+    marginBottom: 120,
+    padding: spacing.xl,
   },
 
   emptyTitle: {
-    fontSize: 18,
     fontWeight: "700",
-    color: colors.text,
+    fontFamily: typography.display,
+    fontSize: 26,
+    letterSpacing: 0.5,
+    textTransform: "uppercase",
+    color: colors.toner,
   },
 
   emptyText: {
     marginTop: spacing.sm,
     textAlign: "center",
     fontSize: 14,
-    color: colors.textSecondary,
+    fontFamily: typography.body,
+    color: colors.tonerMuted,
   },
 });

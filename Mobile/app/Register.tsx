@@ -13,7 +13,7 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { router } from "expo-router";
-import { colors, radius, spacing } from "../constants/theme";
+import { colors, radius, sheetShadow, spacing, typography } from "../constants/theme";
 import api from "../api/client";
 import useAuthStore from "../store/authStore";
 
@@ -197,8 +197,8 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     justifyContent: "space-between",
-    paddingHorizontal: spacing.xl,
-    paddingVertical: spacing.xl,
+    paddingHorizontal: spacing.lg,
+    paddingVertical: spacing.lg,
   },
 
   brandRow: {
@@ -208,9 +208,11 @@ const styles = StyleSheet.create({
   },
 
   brand: {
-    fontSize: 30,
-    fontWeight: "800",
-    letterSpacing: -1.5,
+    fontFamily: typography.display,
+    fontSize: 36,
+    fontWeight: "900",
+    letterSpacing: 0.5,
+    textTransform: "uppercase",
     color: colors.text,
   },
 
@@ -219,27 +221,35 @@ const styles = StyleSheet.create({
   },
 
   title: {
-    fontSize: 32,
-    fontWeight: "800",
+    fontFamily: typography.display,
+    fontSize: 42,
+    fontWeight: "900",
+    letterSpacing: 0.8,
+    textTransform: "uppercase",
     color: colors.text,
   },
 
   subtitle: {
     marginTop: spacing.sm,
+    fontFamily: typography.body,
     fontSize: 16,
     lineHeight: 23,
     color: colors.textSecondary,
   },
 
   form: {
-    marginTop: 28,
+    ...sheetShadow,
+    marginTop: spacing.lg,
+    backgroundColor: colors.copy,
+    padding: spacing.lg,
   },
 
   label: {
     marginBottom: spacing.sm,
     fontSize: 14,
     fontWeight: "600",
-    color: colors.text,
+    fontFamily: typography.body,
+    color: colors.toner,
   },
 
   nextLabel: {
@@ -248,22 +258,23 @@ const styles = StyleSheet.create({
 
   input: {
     borderWidth: 1,
-    borderColor: colors.inputBorder,
+    borderColor: colors.tonerMuted,
     borderRadius: radius.md,
-    backgroundColor: colors.surface,
+    backgroundColor: colors.copyMuted,
     paddingHorizontal: spacing.lg,
     paddingVertical: 14,
     fontSize: 16,
-    color: colors.text,
+    fontFamily: typography.body,
+    color: colors.toner,
   },
 
   passwordBox: {
     flexDirection: "row",
     alignItems: "center",
     borderWidth: 1,
-    borderColor: colors.inputBorder,
+    borderColor: colors.tonerMuted,
     borderRadius: radius.md,
-    backgroundColor: colors.surface,
+    backgroundColor: colors.copyMuted,
   },
 
   passwordInput: {
@@ -271,7 +282,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.lg,
     paddingVertical: 14,
     fontSize: 16,
-    color: colors.text,
+    fontFamily: typography.body,
+    color: colors.toner,
   },
 
   showButton: {
@@ -282,13 +294,15 @@ const styles = StyleSheet.create({
   showText: {
     fontSize: 14,
     fontWeight: "600",
-    color: colors.accent,
+    fontFamily: typography.body,
+    color: colors.toner,
   },
 
   primaryButton: {
+    ...sheetShadow,
     marginTop: spacing.xl,
     alignItems: "center",
-    borderRadius: radius.full,
+    borderRadius: radius.md,
     backgroundColor: colors.primary,
     paddingVertical: 15,
     minHeight: 48,
@@ -299,6 +313,7 @@ const styles = StyleSheet.create({
   },
 
   primaryButtonText: {
+    fontFamily: typography.body,
     fontSize: 16,
     fontWeight: "700",
     color: colors.primaryText,
@@ -310,11 +325,13 @@ const styles = StyleSheet.create({
   },
 
   bottomText: {
+    fontFamily: typography.body,
     fontSize: 14,
     color: colors.textMuted,
   },
 
   bottomLink: {
+    fontFamily: typography.body,
     fontSize: 14,
     fontWeight: "700",
     color: colors.accent,

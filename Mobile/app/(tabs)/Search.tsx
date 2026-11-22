@@ -12,7 +12,7 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import api from "../../api/client";
-import { colors, radius, spacing } from "../../constants/theme";
+import { colors, radius, sheetShadow, spacing, typography } from "../../constants/theme";
 import useAuthStore from "../../store/authStore";
 
 export default function Search() {
@@ -141,7 +141,7 @@ export default function Search() {
         </Text>
 
         <View style={styles.searchBox}>
-          <Ionicons name="search-outline" size={21} color={colors.textMuted} style={styles.searchIcon} />
+          <Ionicons name="search-outline" size={21} color={colors.tonerMuted} style={styles.searchIcon} />
 
           <TextInput
             selectionColor={colors.accent}
@@ -155,7 +155,7 @@ export default function Search() {
           />
 
           {isLoading ? (
-            <ActivityIndicator size="small" color={colors.textSecondary} />
+            <ActivityIndicator size="small" color={colors.tonerMuted} />
           ) : null}
         </View>
 
@@ -197,45 +197,51 @@ const styles = StyleSheet.create({
 
   container: {
     flex: 1,
-    paddingHorizontal: spacing.xl,
+    paddingHorizontal: spacing.lg,
     paddingTop: spacing.lg,
   },
 
   title: {
-    fontSize: 28,
-    fontWeight: "800",
+    fontFamily: typography.display,
+    fontSize: 40,
+    fontWeight: "900",
+    letterSpacing: 0.8,
+    textTransform: "uppercase",
     color: colors.text,
   },
 
   subtitle: {
     marginTop: spacing.sm,
+    fontFamily: typography.body,
     fontSize: 16,
     lineHeight: 23,
     color: colors.textSecondary,
   },
 
   searchBox: {
+    ...sheetShadow,
     flexDirection: "row",
     alignItems: "center",
     marginTop: spacing.xl,
     borderWidth: 1,
-    borderColor: colors.border,
-    borderRadius: radius.full,
-    backgroundColor: colors.surfaceRaised,
+    borderColor: colors.toner,
+    borderRadius: radius.md,
+    backgroundColor: colors.primary,
     paddingHorizontal: spacing.lg,
   },
 
   searchIcon: {
     marginRight: spacing.sm,
     fontSize: 24,
-    color: colors.textMuted,
+    color: colors.tonerMuted,
   },
 
   searchInput: {
     flex: 1,
     paddingVertical: spacing.lg,
     fontSize: 16,
-    color: colors.text,
+    fontFamily: typography.body,
+    color: colors.toner,
   },
 
   listContent: {
@@ -258,13 +264,15 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     borderRadius: 23,
-    backgroundColor: colors.border,
+    borderWidth: 1,
+    borderColor: colors.border,
+    backgroundColor: colors.copy,
   },
 
   avatarText: {
     fontSize: 17,
     fontWeight: "800",
-    color: colors.text,
+    color: colors.toner,
   },
 
   userInfo: {
@@ -275,24 +283,28 @@ const styles = StyleSheet.create({
   name: {
     fontSize: 15,
     fontWeight: "700",
+    fontFamily: typography.body,
     color: colors.text,
   },
 
   username: {
     marginTop: 2,
     fontSize: 13,
+    fontFamily: typography.body,
     color: colors.textMuted,
   },
 
   bio: {
     marginTop: 4,
     fontSize: 13,
+    fontFamily: typography.body,
     color: colors.textSecondary,
   },
 
   followButton: {
+    ...sheetShadow,
     marginLeft: spacing.sm,
-    borderRadius: radius.full,
+    borderRadius: radius.md,
     minHeight: 40,
     justifyContent: "center",
     backgroundColor: colors.primary,
@@ -303,36 +315,44 @@ const styles = StyleSheet.create({
   followingButton: {
     borderWidth: 1,
     borderColor: colors.border,
-    backgroundColor: colors.surface,
+    backgroundColor: colors.copy,
   },
 
   followButtonText: {
+    fontFamily: typography.body,
     fontSize: 13,
     fontWeight: "700",
     color: colors.primaryText,
   },
 
   followingButtonText: {
-    color: colors.text,
+    color: colors.toner,
   },
 
   emptyContainer: {
+    ...sheetShadow,
     flex: 1,
     alignItems: "center",
     justifyContent: "center",
-    paddingBottom: 140,
+    backgroundColor: colors.copy,
+    marginBottom: 140,
+    padding: spacing.xl,
   },
 
   emptyTitle: {
-    fontSize: 17,
+    fontFamily: typography.display,
+    fontSize: 25,
     fontWeight: "700",
-    color: colors.text,
+    letterSpacing: 0.5,
+    textTransform: "uppercase",
+    color: colors.toner,
   },
 
   emptyText: {
     marginTop: spacing.sm,
     textAlign: "center",
     fontSize: 14,
-    color: colors.textSecondary,
+    fontFamily: typography.body,
+    color: colors.tonerMuted,
   },
 });

@@ -13,7 +13,7 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import { router } from "expo-router";
 import api from "../../api/client";
-import { colors, radius, spacing } from "../../constants/theme";
+import { colors, radius, sheetShadow, spacing, typography } from "../../constants/theme";
 
 export default function Create() {
   const [content, setContent] = useState("");
@@ -103,31 +103,35 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     justifyContent: "space-between",
-    paddingHorizontal: spacing.xl,
+    paddingHorizontal: spacing.lg,
     paddingVertical: spacing.xl,
   },
 
   title: {
-    fontSize: 28,
-    fontWeight: "800",
+    fontFamily: typography.display,
+    fontSize: 40,
+    fontWeight: "900",
+    letterSpacing: 0.8,
+    textTransform: "uppercase",
     color: colors.text,
   },
 
   subtitle: {
     marginTop: spacing.sm,
+    fontFamily: typography.body,
     fontSize: 16,
     lineHeight: 23,
     color: colors.textSecondary,
   },
 
   editor: {
+    ...sheetShadow,
     minHeight: 220,
     marginTop: spacing.xl,
-    borderTopWidth: 1,
-    borderBottomWidth: 1,
-    borderColor: colors.border,
-    backgroundColor: colors.surface,
-    paddingVertical: spacing.lg,
+    borderWidth: 1,
+    borderColor: colors.toner,
+    backgroundColor: colors.copy,
+    padding: spacing.lg,
   },
 
   input: {
@@ -135,19 +139,22 @@ const styles = StyleSheet.create({
     minHeight: 160,
     fontSize: 17,
     lineHeight: 24,
-    color: colors.text,
+    fontFamily: typography.body,
+    color: colors.toner,
   },
 
   characterCount: {
     marginTop: spacing.md,
     alignSelf: "flex-end",
     fontSize: 13,
-    color: colors.textMuted,
+    fontFamily: typography.body,
+    color: colors.tonerMuted,
   },
 
   postButton: {
+    ...sheetShadow,
     alignItems: "center",
-    borderRadius: radius.full,
+    borderRadius: radius.md,
     minHeight: 48,
     backgroundColor: colors.primary,
     paddingVertical: spacing.lg,
@@ -158,6 +165,7 @@ const styles = StyleSheet.create({
   },
 
   postButtonText: {
+    fontFamily: typography.body,
     fontSize: 16,
     fontWeight: "700",
     color: colors.primaryText,

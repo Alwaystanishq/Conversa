@@ -5,7 +5,7 @@ import { router } from "expo-router";
 import { authClient } from "../api/auth-client";
 import useAuthStore from "../store/authStore";
 import api from "../api/client";
-import { colors, radius, spacing } from "../constants/theme";
+import { colors, radius, spacing, typography } from "../constants/theme";
 
 export default function GoogleSignInButton({ disabled }: { disabled: boolean }) {
   const [pending, setPending] = useState(false);
@@ -40,9 +40,9 @@ export default function GoogleSignInButton({ disabled }: { disabled: boolean }) 
       accessibilityRole="button"
       disabled={disabled || pending}
       onPress={signIn}
-      style={{ marginTop: spacing.md, padding: spacing.lg, borderWidth: 1, borderColor: colors.border, borderRadius: radius.full, alignItems: "center", opacity: disabled || pending ? 0.5 : 1 }}
+      style={{ marginTop: spacing.md, padding: spacing.lg, borderWidth: 1, borderColor: colors.toner, borderRadius: radius.md, backgroundColor: colors.copyMuted, alignItems: "center", opacity: disabled || pending ? 0.5 : 1 }}
     >
-      {pending ? <ActivityIndicator color={colors.text} /> : <Text style={{ color: colors.text, fontWeight: "600" }}>Continue with Google</Text>}
+      {pending ? <ActivityIndicator color={colors.toner} /> : <Text style={{ color: colors.toner, fontFamily: typography.body, fontWeight: "600" }}>Continue with Google</Text>}
     </Pressable>
   );
 }

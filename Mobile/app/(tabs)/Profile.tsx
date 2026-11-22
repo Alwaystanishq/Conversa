@@ -12,7 +12,7 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import { router, useFocusEffect } from "expo-router";
 import api from "../../api/client";
-import { colors, radius, spacing } from "../../constants/theme";
+import { colors, radius, sheetShadow, spacing, typography } from "../../constants/theme";
 import useAuthStore from "../../store/authStore";
 import LikeButton from "../../components/LikeButton";
 
@@ -209,7 +209,7 @@ const styles = StyleSheet.create({
   },
 
   listContent: {
-    paddingHorizontal: spacing.xl,
+    paddingHorizontal: spacing.lg,
     paddingTop: spacing.lg,
     paddingBottom: 100,
     flexGrow: 1,
@@ -222,16 +222,20 @@ const styles = StyleSheet.create({
   },
 
   title: {
-    fontSize: 28,
-    fontWeight: "800",
+    fontFamily: typography.display,
+    fontSize: 40,
+    fontWeight: "900",
+    letterSpacing: 0.8,
+    textTransform: "uppercase",
     color: colors.text,
   },
 
   logoutButton: {
+    ...sheetShadow,
     borderWidth: 1,
     borderColor: colors.border,
-    borderRadius: radius.full,
-    backgroundColor: colors.surface,
+    borderRadius: radius.md,
+    backgroundColor: colors.copy,
     paddingHorizontal: spacing.lg,
     paddingVertical: spacing.sm,
   },
@@ -239,15 +243,16 @@ const styles = StyleSheet.create({
   logoutText: {
     fontSize: 13,
     fontWeight: "700",
-    color: colors.text,
+    fontFamily: typography.body,
+    color: colors.toner,
   },
 
   profileCard: {
+    ...sheetShadow,
     marginTop: spacing.xl,
     alignItems: "flex-start",
-    borderBottomWidth: 1,
-    borderBottomColor: colors.border,
-    paddingVertical: spacing.xl,
+    backgroundColor: colors.copy,
+    padding: spacing.lg,
   },
 
   avatar: {
@@ -256,33 +261,38 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     borderRadius: 39,
-    backgroundColor: colors.border,
+    borderWidth: 1,
+    borderColor: colors.toner,
+    backgroundColor: colors.primary,
   },
 
   avatarText: {
     fontSize: 28,
     fontWeight: "800",
-    color: colors.text,
+    color: colors.toner,
   },
 
   name: {
     marginTop: spacing.md,
     fontSize: 20,
     fontWeight: "800",
-    color: colors.text,
+    fontFamily: typography.body,
+    color: colors.toner,
   },
 
   username: {
     marginTop: 4,
     fontSize: 14,
-    color: colors.textMuted,
+    fontFamily: typography.body,
+    color: colors.tonerMuted,
   },
 
   bio: {
     marginTop: spacing.md,
     fontSize: 14,
     lineHeight: 20,
-    color: colors.textSecondary,
+    fontFamily: typography.body,
+    color: colors.tonerMuted,
   },
 
   statsRow: {
@@ -292,7 +302,7 @@ const styles = StyleSheet.create({
     gap: spacing.xxl,
     marginTop: spacing.xl,
     borderTopWidth: 1,
-    borderTopColor: colors.border,
+    borderTopColor: colors.tonerMuted,
     paddingTop: spacing.lg,
   },
 
@@ -301,61 +311,72 @@ const styles = StyleSheet.create({
   },
 
   statNumber: {
-    fontSize: 17,
     fontWeight: "800",
-    color: colors.text,
+    fontFamily: typography.display,
+    fontSize: 23,
+    color: colors.toner,
   },
 
   statLabel: {
     marginTop: 3,
     fontSize: 12,
-    color: colors.textMuted,
+    fontFamily: typography.body,
+    color: colors.tonerMuted,
   },
 
   sectionTitle: {
     marginTop: spacing.xl,
     marginBottom: spacing.md,
-    fontSize: 18,
-    fontWeight: "800",
+    fontFamily: typography.display,
+    fontSize: 25,
+    fontWeight: "900",
+    letterSpacing: 0.5,
+    textTransform: "uppercase",
     color: colors.text,
   },
 
   postCard: {
-    borderBottomWidth: 1,
-    borderBottomColor: colors.border,
-    backgroundColor: colors.background,
-    marginHorizontal: -spacing.xl,
-    paddingHorizontal: spacing.xl,
-    paddingVertical: 20,
+    ...sheetShadow,
+    backgroundColor: colors.copy,
+    marginBottom: spacing.lg,
+    padding: spacing.lg,
   },
 
   postContent: {
     fontSize: 16,
     lineHeight: 23,
-    color: colors.text,
+    fontFamily: typography.body,
+    color: colors.toner,
   },
 
   postLikes: {
     marginTop: spacing.md,
     fontSize: 13,
-    color: colors.textSecondary,
+    fontFamily: typography.body,
+    color: colors.tonerMuted,
   },
 
   emptyContainer: {
+    ...sheetShadow,
     alignItems: "center",
-    paddingVertical: 36,
+    backgroundColor: colors.copy,
+    padding: spacing.xl,
   },
 
   emptyTitle: {
-    fontSize: 16,
+    fontFamily: typography.display,
+    fontSize: 24,
     fontWeight: "700",
-    color: colors.text,
+    letterSpacing: 0.5,
+    textTransform: "uppercase",
+    color: colors.toner,
   },
 
   emptyText: {
     marginTop: spacing.sm,
     fontSize: 14,
-    color: colors.textSecondary,
+    fontFamily: typography.body,
+    color: colors.tonerMuted,
   },
 
   likedSection: {

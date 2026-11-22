@@ -1,18 +1,25 @@
+import { Platform } from "react-native";
+
 export const colors = {
-  background: "#000000",
-  surface: "#000000",
-  border: "#2f3336",
+  background: "#11100f",
+  surface: "#1b1917",
+  surfaceRaised: "#292622",
+  border: "#6a6359",
 
-  text: "#e7e9ea",
-  textSecondary: "#8b9095",
-  textMuted: "#8b9095",
+  text: "#f4f0e6",
+  textSecondary: "#d4cdc0",
+  textMuted: "#aaa296",
 
-  primary: "#0b76b8",
-  primaryText: "#ffffff",
-  accent: "#1d9bf0",
-  surfaceRaised: "#16181c",
-  inputBorder: "#536471",
-  error: "#ff9da6",
+  primary: "#eaff4f",
+  primaryText: "#211f1c",
+  accent: "#eaff4f",
+  copy: "#f4f0e6",
+  copyMuted: "#e4ded2",
+  toner: "#211f1c",
+  tonerMuted: "#655f56",
+  inputBorder: "#827a6d",
+  error: "#a91f42",
+  heart: "#c4274f",
 };
 
 export const spacing = {
@@ -25,8 +32,29 @@ export const spacing = {
 };
 
 export const radius = {
-  md: 4,
-  lg: 8,
-  xl: 16,
+  md: 0,
+  lg: 0,
+  xl: 0,
   full: 9999,
+};
+
+export const typography = {
+  display: Platform.select({
+    ios: "AvenirNextCondensed-Heavy",
+    android: "sans-serif-condensed",
+    default: "sans-serif-condensed",
+  }),
+  body: Platform.select({
+    ios: "Georgia",
+    android: "serif",
+    default: "serif",
+  }),
+};
+
+export const sheetShadow = {
+  shadowColor: "#050505",
+  shadowOffset: { width: 5, height: 5 },
+  shadowOpacity: 1,
+  shadowRadius: 0,
+  elevation: 5,
 };

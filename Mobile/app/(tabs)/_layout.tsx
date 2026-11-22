@@ -5,7 +5,7 @@ import { Tabs, useRouter, useSegments } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { StatusBar } from "expo-status-bar";
 import api from "../../api/client";
-import { colors } from "../../constants/theme";
+import { colors, typography } from "../../constants/theme";
 import useAuthStore from "../../store/authStore";
 
 function AuthGuard() {
@@ -61,8 +61,8 @@ function AuthGuard() {
       headerShown: false,
       tabBarActiveTintColor: colors.accent,
       tabBarInactiveTintColor: colors.textMuted,
-      tabBarStyle: { backgroundColor: colors.background, borderTopColor: colors.border },
-      tabBarLabelStyle: { fontSize: 11, fontWeight: "600" },
+      tabBarStyle: { backgroundColor: colors.surface, borderTopColor: colors.border, borderTopWidth: 1, height: 64, paddingTop: 6 },
+      tabBarLabelStyle: { fontFamily: typography.display, fontSize: 13, fontWeight: "800", letterSpacing: 0.8, textTransform: "uppercase" },
       sceneStyle: { backgroundColor: colors.background },
     }}>
       <Tabs.Screen name="Home" options={{ title: "Home", tabBarIcon: ({ color, focused }) => <Ionicons name={focused ? "home" : "home-outline"} size={24} color={color} /> }} />

@@ -16,7 +16,7 @@ export default function LikeButton({ postId, likes = [], onChange }: Props) {
   const [isUpdating, setIsUpdating] = useState(false);
   const [error, setError] = useState("");
   const liked = Boolean(user && likes.includes(user._id));
-  const color = liked ? colors.accent : colors.textSecondary;
+  const color = liked ? colors.heart : colors.tonerMuted;
 
   async function toggleLike() {
     if (!user || isUpdating) return;
@@ -52,7 +52,7 @@ export default function LikeButton({ postId, likes = [], onChange }: Props) {
 
 const styles = StyleSheet.create({
   button: { alignSelf: "flex-start", flexDirection: "row", alignItems: "center", gap: 8, minWidth: 44, minHeight: 44, paddingHorizontal: 10, marginLeft: -10 },
-  count: { fontSize: 13 },
+  count: { fontSize: 13, fontWeight: "600" },
   pressed: { opacity: 0.5 },
   error: { color: colors.error, fontSize: 13, lineHeight: 20, marginTop: 4 },
 });
