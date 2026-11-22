@@ -71,7 +71,18 @@ export default function Profile() {
   return (
     <>
       <header className="page-header"><div><h1>{ownProfile ? "Your profile" : "Profile"}</h1><p>{ownProfile ? "Your posts and connections." : `Posts and updates from @${profile.username}.`}</p></div></header>
-      <section className="profile-card" aria-label="Profile"><div className="profile-cover" aria-hidden="true" /><div className="profile-body"><div className="profile-top"><span className="avatar profile-avatar">{profile.name?.charAt(0).toUpperCase()}</span>{ownProfile ? <Link to="/create" className="button button-secondary"><Icon name="plus" size={16} />Write a post</Link> : <button onClick={toggleFollow} disabled={isFollowing} className={`button ${following ? "button-secondary" : "button-primary"}`} aria-pressed={Boolean(following)}>{isFollowing ? "Updating…" : following ? "Following" : "Follow"}{following && <Icon name="check" size={16} />}</button>}</div><h2>{profile.name}</h2><p className="profile-handle">@{profile.username}</p>{profile.bio && <p className="profile-bio">{profile.bio}</p>}{followError && <p className="error-message" role="alert">{followError}</p>}<dl className="profile-stats"><div><dt>Posts</dt><dd>{posts.length}</dd></div><div><dt>Followers</dt><dd>{profile.followers?.length || 0}</dd></div><div><dt>Following</dt><dd>{profile.following?.length || 0}</dd></div></dl></div></section>
+      <section className="profile-card" aria-label="Profile">
+        <div className="profile-body">
+          <div className="profile-top">
+            <span className="avatar profile-avatar">{profile.name?.charAt(0).toUpperCase()}</span>
+            <div className="profile-identity"><h2>{profile.name}</h2><p className="profile-handle">@{profile.username}</p></div>
+            {ownProfile ? <Link to="/create" className="button button-secondary"><Icon name="plus" size={16} />Write a post</Link> : <button onClick={toggleFollow} disabled={isFollowing} className={`button ${following ? "button-secondary" : "button-primary"}`} aria-pressed={Boolean(following)}>{isFollowing ? "Updating…" : following ? "Following" : "Follow"}{following && <Icon name="check" size={16} />}</button>}
+          </div>
+          {profile.bio && <p className="profile-bio">{profile.bio}</p>}
+          {followError && <p className="error-message" role="alert">{followError}</p>}
+          <dl className="profile-stats"><div><dt>Posts</dt><dd>{posts.length}</dd></div><div><dt>Followers</dt><dd>{profile.followers?.length || 0}</dd></div><div><dt>Following</dt><dd>{profile.following?.length || 0}</dd></div></dl>
+        </div>
+      </section>
       <div className="profile-tabs" role="group" aria-label="Profile post filter"><button onClick={() => setTab("posts")} aria-pressed={tab === "posts"}>Posts <span>{posts.length}</span></button><button onClick={() => setTab("likes")} aria-pressed={tab === "likes"}><Icon name="heart" size={16} />Liked posts <span>{likedPosts.length}</span></button></div>
       {visiblePosts.length === 0 ? <div className="empty-state"><span className="empty-icon"><Icon name={tab === "posts" ? "chat" : "heart"} size={28} /></span><h2>{tab === "posts" ? "No posts yet" : "No liked posts"}</h2><p>{tab === "posts" ? "Posts will appear here once they’re published." : "Liked posts will appear here."}</p>{ownProfile && tab === "posts" && <Link to="/create" className="button button-primary">Write your first post</Link>}</div> : <div className="post-list">{visiblePosts.map((post) => <PostCard key={post._id} post={post} onLike={updateLikes} />)}</div>}
     </>

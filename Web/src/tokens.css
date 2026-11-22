@@ -13,7 +13,7 @@
   --color-ink: oklch(94% 0.012 90); --color-ink-2: oklch(84% 0.014 85); --color-muted: oklch(72% 0.018 80);
   --color-rule: oklch(43% 0.025 68); --color-rule-2: oklch(79% 0.015 85);
   --color-copy: oklch(94% 0.012 90); --color-copy-2: oklch(88% 0.018 82); --color-toner: oklch(18% 0.012 60); --color-toner-muted: oklch(39% 0.025 62);
-  --color-accent: oklch(93% 0.2 112); --color-accent-ink: oklch(17% 0.01 60); --color-focus: oklch(88% 0.2 112);
+  --color-accent: #78b8ef; --color-accent-ink: #152332; --color-focus: #327bb5;
   --font-display: "League Gothic", Impact, sans-serif; --font-body: "Newsreader", Georgia, serif;
   --radius-card: 0; --radius-pill: 999px; --rule-hair: 1px;
   --shadow-card: 4px 4px 0 oklch(8% 0.008 60 / 0.8);

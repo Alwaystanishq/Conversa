@@ -10,9 +10,9 @@ export const colors = {
   textSecondary: "#d4cdc0",
   textMuted: "#aaa296",
 
-  primary: "#eaff4f",
-  primaryText: "#211f1c",
-  accent: "#eaff4f",
+  primary: "#78b8ef",
+  primaryText: "#152332",
+  accent: "#78b8ef",
   copy: "#f4f0e6",
   copyMuted: "#e4ded2",
   toner: "#211f1c",
