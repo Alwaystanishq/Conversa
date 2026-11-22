@@ -12,7 +12,7 @@ export default function ProtectedRoute({ children }: Props) {
   if (isLoading) {
     return (
       <div className="auth-loading" role="status">
-        Loading...
+        Loading…
       </div>
     );
   }

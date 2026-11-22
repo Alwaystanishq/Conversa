@@ -3,7 +3,6 @@ import { isAxiosError } from "axios";
 import { useNavigate } from "react-router-dom";
 import api from "../api/client";
 import useAuthStore from "../store/authStore";
-import Icon from "../components/Icon";
 
 export default function Create() {
   const navigate = useNavigate();
@@ -35,7 +34,7 @@ export default function Create() {
         <label htmlFor="post-content" className="sr-only">Your post</label><textarea id="post-content" value={content} onChange={(event) => setContent(event.target.value)} rows={8} maxLength={280} required placeholder="What's on your mind?" aria-describedby="character-count post-tip" />
         <p id="post-tip" className="compose-tip">Up to 280 characters.</p>
         {error && <p className="error-message" role="alert">{error}</p>}
-        <div className="create-footer"><span id="character-count" className={content.length > 259 ? "character-count near-limit" : "character-count"}>{content.length}<span> / 280</span></span><button type="submit" disabled={isLoading || !content.trim()} className="button button-primary">{isLoading ? "Publishing…" : "Publish post"}<Icon name="arrow" size={18} /></button></div>
+        <div className="create-footer"><span id="character-count" className={content.length > 259 ? "character-count near-limit" : "character-count"}>{content.length}<span> / 280</span></span><button type="submit" disabled={isLoading || !content.trim()} className="button button-primary">{isLoading ? "Publishing…" : "Publish post"}</button></div>
       </form>
     </>
   );

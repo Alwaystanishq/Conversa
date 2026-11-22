@@ -5,7 +5,6 @@ import { Link, Navigate, useNavigate } from "react-router-dom";
 import api from "../api/client";
 import useAuthStore from "../store/authStore";
 import AuthLayout from "./AuthLayout";
-import Icon from "./Icon";
 
 export default function AuthForm({ register = false }: { register?: boolean }) {
   const navigate = useNavigate();
@@ -76,7 +75,7 @@ export default function AuthForm({ register = false }: { register?: boolean }) {
         <div className="field"><label htmlFor="email">Email address</label><input id="email" name="email" type="email" autoComplete="email" placeholder="you@example.com" required /></div>
         <div className="field"><label htmlFor="password">Password</label><div className="password-field"><input id="password" name="password" type={showPassword ? "text" : "password"} autoComplete={register ? "new-password" : "current-password"} placeholder={register ? "Create a password" : "Enter your password"} required /><button type="button" onClick={() => setShowPassword(!showPassword)} aria-label={showPassword ? "Hide password" : "Show password"} aria-pressed={showPassword}>{showPassword ? "Hide" : "Show"}</button></div></div>
         {error && <p className="error-message" role="alert">{error}</p>}
-        <button type="submit" disabled={isLoading} className="button button-primary auth-submit">{isLoading ? (register ? "Creating your account…" : "Signing you in…") : (register ? "Create account" : "Log in")}<Icon name="arrow" size={18} /></button>
+        <button type="submit" disabled={isLoading} className="button button-primary auth-submit">{isLoading ? (register ? "Creating your account…" : "Signing you in…") : (register ? "Create account" : "Log in")}</button>
       </form>
       <button type="button" onClick={handleGoogle} disabled={isLoading} className="button button-secondary google-sign-in">Continue with Google</button>
       <div className="auth-switch">{register ? "Already have an account?" : "New to Conversa?"} <Link to={register ? "/login" : "/register"}>{register ? "Log in" : "Create an account"}</Link></div>
