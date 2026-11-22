@@ -1,4 +1,5 @@
 import { useState } from "react";
+import GoogleSignInButton from "../components/GoogleSignInButton";
 import {
   ActivityIndicator,
   Alert,
@@ -132,6 +133,7 @@ export default function Login() {
                   <Text style={styles.primaryButtonText}>Log in</Text>
                 )}
               </Pressable>
+              <GoogleSignInButton disabled={isLoading} />
             </View>
           </View>
 

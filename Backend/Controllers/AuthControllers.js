@@ -1,4 +1,5 @@
 import jwt from "jsonwebtoken";
+import { fromNodeHeaders } from "better-auth/node";
 import bcrypt from "bcryptjs";
 import User from "../Models/UserModel.js";
 
@@ -12,7 +13,7 @@ export const loginController = async (req, res) => {
       });
     }
     const loginUser = await User.findOne({ email: email.toLowerCase() });
-    if (!loginUser) {
+    if (!loginUser?.password) {
       return res.status(400).json({
         success: false,
         message: "Invalid credentials",
@@ -108,5 +109,26 @@ export const getCurrentUserController = async (req, res) => {
       success: false,
       message: "Internal server error",
     });
+  }
+};
+
+// Exchange Google's Better Auth session for the JWT used by the existing apps.
+export const googleLoginController = async (req, res) => {
+  try {
+    const origin = req.headers.origin || req.headers["expo-origin"];
+    if (![process.env.WEB_ORIGIN || "http://localhost:5173", "mobile://"].includes(origin)) {
+      return res.status(403).json({ success: false, message: "Untrusted request origin" });
+    }
+    const session = await req.app.locals.auth.api.getSession({ headers: fromNodeHeaders(req.headers) });
+    if (!session?.user.emailVerified) {
+      return res.status(401).json({ success: false, message: "Google sign-in required" });
+    }
+    const user = await User.findById(session.user.id).select("-password");
+    if (!user) return res.status(401).json({ success: false, message: "User not found" });
+    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: "30d" });
+    return res.json({ success: true, token, user });
+  } catch (error) {
+    console.error("Google sign-in error:", error.message);
+    return res.status(500).json({ success: false, message: "Google sign-in failed" });
   }
 };

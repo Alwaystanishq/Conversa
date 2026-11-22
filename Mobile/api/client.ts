@@ -1,8 +1,9 @@
 import axios from "axios";
+import { backendURL } from "./config";
 import { storage } from "../utils/storage";
 
 const api = axios.create({
-  baseURL: "http://10.0.2.2:5000/api",
+  baseURL: `${backendURL}/api`,
 });
 
 api.interceptors.request.use(async (config) => {

@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { authClient } from "../api/auth-client";
 import { isAxiosError } from "axios";
 import { Link, Navigate, useNavigate } from "react-router-dom";
 import api from "../api/client";
@@ -12,7 +13,38 @@ export default function AuthForm({ register = false }: { register?: boolean }) {
   const user = useAuthStore((state) => state.user);
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState("");
+  const [error, setError] = useState(new URLSearchParams(window.location.search).has("googleError") ? "Google sign-in failed. Please try again." : "");
+
+  const googleStarted = useRef(false);
+
+  useEffect(() => {
+    if (new URLSearchParams(window.location.search).get("google") !== "1" || googleStarted.current) return;
+    googleStarted.current = true;
+    setIsLoading(true);
+    api.post("/auth/google").then((response) => {
+      setAuth(response.data.token, response.data.user);
+      void authClient.signOut().catch(() => {});
+      navigate("/home", { replace: true });
+    }).catch((error) => {
+      setError(isAxiosError(error) && error.response?.data?.message || "Google sign-in failed. Please try again.");
+    }).finally(() => setIsLoading(false));
+  }, [setAuth, navigate]);
+
+  async function handleGoogle() {
+    setError("");
+    setIsLoading(true);
+    try {
+      const { error } = await authClient.signIn.social({
+        provider: "google", callbackURL: `${window.location.origin}/login?google=1`,
+        errorCallbackURL: `${window.location.origin}/login?googleError=1`,
+      });
+      if (error) setError(error.message || "Google sign-in failed.");
+    } catch {
+      setError("Google sign-in failed. Please try again.");
+    } finally {
+      setIsLoading(false);
+    }
+  }
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -46,6 +78,7 @@ export default function AuthForm({ register = false }: { register?: boolean }) {
         {error && <p className="error-message" role="alert">{error}</p>}
         <button type="submit" disabled={isLoading} className="button button-primary auth-submit">{isLoading ? (register ? "Creating your account…" : "Signing you in…") : (register ? "Create account" : "Log in")}<Icon name="arrow" size={18} /></button>
       </form>
+      <button type="button" onClick={handleGoogle} disabled={isLoading} className="button button-secondary google-sign-in">Continue with Google</button>
       <div className="auth-switch">{register ? "Already have an account?" : "New to Conversa?"} <Link to={register ? "/login" : "/register"}>{register ? "Log in" : "Create an account"}</Link></div>
     </AuthLayout>
   );

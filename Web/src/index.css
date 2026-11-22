@@ -113,6 +113,7 @@ svg { flex-shrink: 0; }
 .password-field button:focus-visible { outline-offset: -4px; }
 .form-row { display: flex; gap: 14px; }
 .auth-submit { width: 100%; justify-content: space-between; margin-top: 3px; }
+.google-sign-in { width: 100%; margin-top: 16px; }
 .auth-switch { margin-top: 26px; color: var(--muted); font-size: 14px; line-height: 1.8; }
 .auth-switch a { margin-left: 4px; color: var(--accent); text-decoration: underline; text-underline-offset: 3px; }
 .auth-footer { color: var(--muted); font-size: 12px; }

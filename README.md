@@ -329,6 +329,18 @@ Access Granted
 
 ---
 
+## Google sign-in and Redis
+
+Email/password login and JWT storage continue to work as before. Google sign-in uses Better Auth, then exchanges its session at `POST /api/auth/google` for the app's existing JWT. No account migration is needed. Better Auth blocks automatic linking to existing password accounts whose local email has not been verified; those accounts can continue using password login.
+
+Add the values from `Backend/.env.example` to your existing backend `.env`, keeping your existing `JWT_SECRET`. Configure a Google **Web application** OAuth client with `BETTER_AUTH_URL/api/auth/callback/google` as its authorized redirect URI. Keep the Google client secret on the backend.
+
+Set `VITE_API_URL` (web) and `EXPO_PUBLIC_API_URL` (mobile) to the backend origin, without `/api`. Mobile Google sign-in needs an Expo development build using the existing `mobile` scheme and a publicly reachable HTTPS backend URL; use that same URL for `BETTER_AUTH_URL` and the Google redirect URI. Use the actual web origin for `WEB_ORIGIN`.
+
+Start Redis and set `REDIS_URL`. Authenticated feed, profile, and search responses are cached per user for 30 seconds. Successful post/follow changes invalidate cached responses. If Redis is unavailable, requests go directly to MongoDB; a failed invalidation may leave data cached until its 30-second TTL expires. Existing Express auth rate limits are retained, including Google sign-in.
+
+---
+
 # Author
 
 Developed by Tanishq Chauhan
