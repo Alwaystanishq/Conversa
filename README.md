@@ -1,6 +1,6 @@
 # Conversa
 
-Conversa is a full-stack social media application that allows users to create posts, discover people, follow users, like posts, and connect through conversations across both mobile and web platforms.
+Conversa is a full-stack social media application for sharing text posts, discovering people, following users, and liking posts across mobile and web.
 
 ---
 
@@ -10,20 +10,21 @@ Conversa is a full-stack social media application that allows users to create po
 
 - User Registration
 - User Login
+- Google Sign-in through Better Auth
 - JWT Authentication
 - Protected Routes
 - Auto Login
 - Logout
-- Secure Token Storage
+- Secure Token Storage on Mobile; Browser localStorage on Web
 - API Rate Limiting
 
 ### Posts
 
 - Create Posts
-- View Feed
+- View Feed from Yourself and Followed Users
 - Like Posts
 - Unlike Posts
-- Delete Own Posts
+- Delete Own Posts through the API
 - View User Posts
 - View Liked Posts
 
@@ -33,24 +34,24 @@ Conversa is a full-stack social media application that allows users to create po
 - View User Profiles
 - Follow Users
 - Unfollow Users
-- View Followers & Following
+- View Follower & Following Counts
 - Click User to Open Their Profile
 
 ### Mobile App
 
 - React Native
 - Expo Router
-- Dark Theme UI
 - Bottom Tab Navigation
 - Secure Authentication
+- Google Sign-in in Expo Development Builds
 
 ### Web App
 
 - React + Vite
-- Tailwind CSS
 - Protected Routes
 - Responsive UI
-- Same Design Language as Mobile
+- Public Landing Page
+- Google Sign-in
 
 ---
 
@@ -65,6 +66,7 @@ Conversa is a full-stack social media application that allows users to create po
 - Zustand
 - Axios
 - Expo Secure Store
+- Better Auth Expo Client
 - React Native Safe Area Context
 
 ## Frontend (Web)
@@ -76,6 +78,7 @@ Conversa is a full-stack social media application that allows users to create po
 - React Router DOM
 - Zustand
 - Axios
+- Better Auth Client
 
 ## Backend
 
@@ -88,6 +91,8 @@ Conversa is a full-stack social media application that allows users to create po
 - express-rate-limit
 - CORS
 - dotenv
+- Better Auth
+- Redis (Optional Response Cache)
 
 ---
 
@@ -102,19 +107,23 @@ Conversa
 │   ├── Middlewares
 │   ├── Models
 │   ├── Routes
-│   ├── server.ts
+│   ├── server.js
+│   ├── .env.example
 │   └── package.json
 │
 ├── Mobile
 │   ├── api
 │   ├── app
 │   │   ├── (tabs)
-│   │   ├── Index.tsx
+│   │   ├── index.tsx
+│   │   ├── Login.tsx
 │   │   ├── Register.tsx
 │   │   └── _layout.tsx
 │   ├── constants
+│   ├── components
 │   ├── store
 │   ├── utils
+│   ├── .env.example
 │   └── package.json
 │
 └── Web
@@ -125,7 +134,11 @@ Conversa
     │   ├── pages
     │   ├── store
     │   ├── App.tsx
+    │   ├── tokens.css
+    │   ├── base.css
+    │   ├── index.css
     │   └── main.tsx
+    ├── .env.example
     └── package.json
 ```
 
@@ -133,15 +146,19 @@ Conversa
 
 # Installation
 
+Install Node.js with npm and have a running MongoDB instance or MongoDB Atlas connection. Redis is optional; requests use MongoDB directly when Redis is unavailable. Google sign-in requires a Google OAuth Web application client.
+
 ## Clone Repository
 
 ```bash
-git clone https://github.com/your-username/conversa.git
+git clone https://github.com/Alwaystanishq/Conversa.git
 ```
 
 ```bash
-cd conversa
+cd Conversa
 ```
+
+Run each setup section below from the repository root. Each app has its own dependencies and runs in a separate terminal.
 
 ---
 
@@ -157,13 +174,25 @@ Install dependencies
 npm install
 ```
 
-Create a `.env`
+Copy the environment template to `.env` and replace the placeholder secrets and credentials.
+
+```bash
+cp .env.example .env
+```
 
 ```env
 PORT=5000
-MONGO_URI=YOUR_MONGODB_URI
-JWT_SECRET=YOUR_SECRET_KEY
+MONGO_URI=mongodb://127.0.0.1:27017/conversa
+JWT_SECRET=replace-with-a-random-secret
+REDIS_URL=redis://127.0.0.1:6379
+BETTER_AUTH_URL=http://localhost:5000
+BETTER_AUTH_SECRET=replace-with-a-random-secret-at-least-32-characters
+WEB_ORIGIN=http://localhost:5173
+GOOGLE_CLIENT_ID=your-google-web-client-id
+GOOGLE_CLIENT_SECRET=your-google-client-secret
 ```
+
+Keep an existing `JWT_SECRET` when upgrading. See the Google sign-in and Redis section below for OAuth configuration.
 
 Run
 
@@ -191,23 +220,31 @@ Install
 npm install
 ```
 
+Create the mobile `.env` from its template:
+
+```bash
+cp .env.example .env
+```
+
 Run
 
 ```bash
 npx expo start
 ```
 
-For Android Emulator
+For an Android emulator, set this in `Mobile/.env`:
 
-```ts
-baseURL: "http://10.0.2.2:5000/api";
+```env
+EXPO_PUBLIC_API_URL=http://10.0.2.2:5000
 ```
 
-For Physical Device
+For a physical device, use your computer's LAN address and keep both devices on the same network:
 
-```ts
-baseURL: "http://YOUR_LOCAL_IP:5000/api";
+```env
+EXPO_PUBLIC_API_URL=http://YOUR_LOCAL_IP:5000
 ```
+
+Use the backend origin without `/api`; the API client appends it. Restart Expo after changing the environment. Google sign-in requires an Expo development build and a publicly reachable HTTPS backend, as described below.
 
 ---
 
@@ -223,6 +260,18 @@ Install
 npm install
 ```
 
+Create `Web/.env` from the template:
+
+```bash
+cp .env.example .env
+```
+
+```env
+VITE_API_URL=http://localhost:5000
+```
+
+Use the backend origin without `/api`. Keep `WEB_ORIGIN` in the backend environment aligned with the web app's origin.
+
 Run
 
 ```bash
@@ -235,17 +284,26 @@ Web
 http://localhost:5173
 ```
 
+Build and check the web app:
+
+```bash
+npm run build
+npm run lint
+```
+
 ---
 
 # API Routes
 
 ## Authentication
 
-| Method | Route              | Description      |
-| ------ | ------------------ | ---------------- |
-| POST   | /api/auth/register | Register User    |
-| POST   | /api/auth/login    | Login User       |
-| GET    | /api/auth/me       | Get Current User |
+| Method | Route                    | Description                             |
+| ------ | ------------------------ | --------------------------------------- |
+| POST   | /api/auth/register       | Register User                           |
+| POST   | /api/auth/login          | Login User                              |
+| GET    | /api/auth/me             | Get Current User                        |
+| POST   | /api/auth/sign-in/social | Start Google Sign-in (Better Auth) |
+| POST   | /api/auth/google         | Exchange a Google Session for an App JWT |
 
 ---
 
@@ -259,6 +317,8 @@ http://localhost:5173
 | POST   | /api/posts/:id/unlike | Unlike Post |
 | DELETE | /api/posts/:id        | Delete Post |
 
+All post routes require an `Authorization: Bearer <token>` header. Only the post's author can delete it.
+
 ---
 
 ## Users
@@ -270,18 +330,22 @@ http://localhost:5173
 | PUT    | /api/users/:userId/follow   | Follow User   |
 | PUT    | /api/users/:userId/unfollow | Unfollow User |
 
+All user routes require an `Authorization: Bearer <token>` header. Search accepts `?query=...`; profile responses include the user's posts and liked posts.
+
 ---
 
 # Authentication Flow
 
 ```text
-Register/Login
+Email/Password Register/Login
+or Google Sign-in → Better Auth Session → /api/auth/google
       │
       ▼
 Backend returns JWT
       │
       ▼
-Token stored securely
+Token stored in SecureStore (mobile)
+or localStorage (web)
       │
       ▼
 User stored in Zustand
@@ -308,6 +372,7 @@ Access Granted
 
 ## Web
 
+- Landing
 - Login
 - Register
 - Home
@@ -319,12 +384,14 @@ Access Granted
 
 # Security
 
-- JWT Authentication
+- JWT Authentication with 30-day Token Expiry
 - Protected Routes
 - API Rate Limiting
 - Password Hashing (bcrypt)
-- Secure Token Storage
+- Expo SecureStore on Mobile; localStorage on Web
 - Authentication Middleware
+- Google OAuth through Better Auth
+- Backend-only Google Client Secret
 
 
 ---
